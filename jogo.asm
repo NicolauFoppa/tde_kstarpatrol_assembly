@@ -75,12 +75,52 @@ pinta_pixel proc
     ret
 endp
 
-inicia_video proc
-    xor AH, AH      ;zera AH
-    mov AL, 13h     ;configura modo de video
-    int 10h         ;chama modo de video do sistema
+move_horizontal proc
+    push CX             ;salva contextos
+    push SI
+    push DI
+    push DX
+    push AX
+
+    cmp SI, 0           ;verifica se SI representa esquerda
+    jne direita         ;se nao for 0, entao o movimento e para direita
+    add CX,9            ;se for para esquerda, deve apagar o risco do lado direito. Se for para a direita, CX ja carrega valor correto
+direita:
+    mov DI, DX          ;passa para DI valor da linha
+    add DI, 10          ;usa DI como comparacao para final da linha de pintura
+deletando:
+    xor AL, Al          ;pinta de preto
+    call pinta_pixel    ;apaga o pixel da coluna
+    inc DX              ;incrementa linha
+    cmp DX, DI          ;se ja pintou toda a coluna necessaria
+    jne deletando       ;termina. Caso contrario, continua pintando.
+    
+    
+    pop AX              ;recupera contextos
+    pop DX
+    pop DI
+    pop SI
+    pop CX
     ret
-endp  
+endp
+
+encerra proc
+    mov ah, 1h      ;muda configuaracao e
+    int 16h         ;verifica se ha tecla no buffer quando entra
+    jz acaba        ;se nao houver, pode encerrar
+limpeza:
+    xor ah,ah       ;se houver tecla no buffer, muda a configuracao e
+    int 16h         ;limpa o buffer
+    mov ah, 1h      ;muda configuaracao e
+    int 16h         ;verifica se ha mais uma tecla no buffer
+    jz acaba        ;se nao houver, pode encerrar
+    jmp limpeza     ;se houver, continua limpando o buffer
+
+acaba:
+    mov ah, 4ch     
+    int 21h         ;interrupcao para encerrar o programa
+    ret
+endp 
 
 escreve_string proc
     push ES
@@ -99,6 +139,15 @@ escreve_string proc
     pop ES
     ret
 endp
+
+inicia_video proc
+    xor AH, AH      ;zera AH
+    mov AL, 13h     ;configura modo de video
+    int 10h         ;chama modo de video do sistema
+    ret
+endp  
+
+
 
 verifica_tecla_menu proc
     
@@ -133,21 +182,21 @@ endp
 troca_cena proc
     
     cmp selected_option, 1  ;verifica se a opcao selecionada e sair
-    jne comeca_jogo         ;senao, a opcao selecionada e jogar, e portanto comeca o jogo
+    ;jne comeca_jogo         ;senao, a opcao selecionada e jogar, e portanto comeca o jogo
     call encerra            ;se sim, chama funcao para encerrar o jogo
     
-comeca_jogo:
-    mov tela_atual, 1       ;se o jogo comeca, altera a tela
-    mov pontuacao, 0        ;zera o tempo da fase
-    call mudar_tela         ;chama funcao para pintar de preto informacoes do menu que nao estarao no jogo
-    call escreve_barra      ;chama funcao para pintar barra laranja/marrom no limite da tela
-    mov CX, nave_pos        ;passa a posicao x da nave para cx
-    mov DX, [nave_pos+2]    ;passa a posicao y da nave para dx                  
-    mov BX, offset nave     ;passa deseho da nave para bx
-    call pinta_10X10        ;desenha a nave na tela na posicao indicada
+;comeca_jogo:
+;    mov tela_atual, 1       ;se o jogo comeca, altera a tela
+;    mov pontuacao, 0        ;zera o tempo da fase
+;    call mudar_tela         ;chama funcao para pintar de preto informacoes do menu que nao estarao no jogo
+;    call escreve_barra      ;chama funcao para pintar barra laranja/marrom no limite da tela
+;    mov CX, nave_pos        ;passa a posicao x da nave para cx
+;    mov DX, [nave_pos+2]    ;passa a posicao y da nave para dx                  
+;    mov BX, offset nave     ;passa deseho da nave para bx
+;    call pinta_10X10        ;desenha a nave na tela na posicao indicada
     
-    ret
-endp
+;    ret
+;endp
 
 altera_opcao proc
     push DI                     ;salva contextos
