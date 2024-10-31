@@ -361,11 +361,13 @@ DESENHA_MENU proc
     
     mov DL, 10 ; coluna
     mov DH, 120 ; linha
+    mov BL, branco
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
     
     mov DL, 235 ; coluna
     mov DH, 120 ; linha
+    mov BL, -1
     mov SI, offset nave_inimiga
     call DESENHA_ELEMENTO_15X9
     
@@ -416,15 +418,35 @@ endp
 ; DI: Posicao do primeiro pixel do desenho no video
 ; DH coluna inicial
 ; DL linha inicial
+; BL cor
 DESENHA_ELEMENTO_15X9 proc
-    push dx
-    push cx
-    push di
-    push si
+    push DX
+    push CX
+    push DI
+    push SI
     
+    cmp BL, 0
+    jl DESENHA_COM_COR
+
+    push SI
+    
+    mov CX, 135
+MUDA_COR_LOOP:    
+    lodsb                        ; Carrega o próximo byte em AL
+    cmp AL, 0                    ; Compara com zero
+    je PULA_BYTE                 ; Se for zero, pula
+
+    mov [SI - 1], BL             ; Substitui o valor por BL
+
+PULA_BYTE:
+    loop MUDA_COR_LOOP   
+    
+    pop SI
+    
+DESENHA_COM_COR:
     mov AX, offset memoria_video 
     mov ES, AX 
-    mov AL, DL ;linha
+    mov AL, DL ; linha
     mov BX, 320
     push DX
     mul BX        
@@ -433,19 +455,19 @@ DESENHA_ELEMENTO_15X9 proc
     add AX, DX ; coluna
     mov DI, AX
     
-    mov dx, 9
+    mov DX, 9
 DESENHA_ELEMENTO_LOOP:
-    mov cx, 15
+    mov CX, 15
     rep movsb
-    dec dx
-    add di, 320 - 15
-    cmp dx, 0
+    dec DX
+    add DI, 320 - 15
+    cmp DX, 0
     jnz DESENHA_ELEMENTO_LOOP
     
-    pop si
-    pop di
-    pop cx
-    pop dx
+    pop SI
+    pop DI
+    pop CX
+    pop DX
     ret
 endp
 
