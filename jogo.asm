@@ -1,54 +1,64 @@
 .MODEL SMALL
+
 .STACK 100H
+
 .DATA
+    ; cores
+    verde EQU 2h
+    vermelho EQU 0Ch
+    branco EQU 0Fh
+    
+    ; teclas
+    arrow_down EQU 50h
+    arrow_up EQU 48h
+    enter EQU 0Dh
 
-titulo db " __  __.        _____ __                "                
-       db "|  |/ _|       / ___//  |______ _______ ";texto do titulo na tela de menu
-       db "|    <   ______\_  \\   __\__  \\_  __ \";40 columns 12 rows
-       db "|  |  \ /_____//    \|  |  / __ \|  | \/"
-       db "|__|__ \      /___  /|__| (____  /__|   "
-       db "      \/          \/           \/       "
-       db "________         __                ._   "
-       db "\____   \_____ _/  |________  ____ | |  "
-       db " |   ___/\__  \\   __\_  __ \/  _ \| |  "
-       db " |  |     / __ \|  |  |  | \(  <_> ) |_ "
-       db " |__|    (____  /__|  |__|   \____/|___/"
-       db "              \/                        "
-  
-voce db "      ____   ____                       " ;mensagens de resultado no final do jogo
-     db "      \   \ /   /___   ____  ____       "
-     db "       \   Y   /  _ \_/ ___\/ __ \      "  
-     db "        \     (  <_> )  \__\  ___/      "  
-     db "         \___/ \____/ \___  >___  >     "  
-     db "                          \/    \/      "  
+    memoria_video equ 0A000h
 
-mensagem_derrota db "________                .___            "   
-                 db "\____   \ __________  __| _/____  __ __ "
-                 db " |   ___// __ \_ __ \/ __ |/ __ \|  |  |"
-                 db " |  |    \  ___/| | / /_/ \  ___/|  |  |"
-                 db " |__|     \___  >_| \____ |\_____>_____/"
-                 db "               \/           \/    \/    "
-     
-mensagem_vitoria db "____   ____                             "
-                 db "\   \ /   /___   ____  _____ ___  __ __ "   
-                 db " \   Y   // __\ /    \/ ___ / __\|  |  |"
-                 db "  \     /\  __/|   |  \ \__\  __/|  |  |"
-                 db "   \___/  \___ >___|  /\___  >___>____ /"
-                 db "              \/    \/     \/         \/" 
+; desenhos
+    
+    titulo db "       __ __     _____ __               " ; 40 x 10 = 400
+           db "      / //_/    / ___// /_____ ______   "
+           db "     / ,< ______\__ \/ __/ __ `/ ___/   "
+           db "    / /| /_____/__/ / /_/ /_/ / /       "
+           db "   /_/ |_|    /____/\__/\__,_/_/        "
+           db "       ____        __             __    "
+           db "      / __ \____ _/ /__________  / /    "
+           db "     / /_/ / __ `/ __/ ___/ __ \/ /     "
+           db "    / ____/ /_/ / /_/ /  / /_/ / /      "
+           db "   /_/    \____/\__/_/   \____/_/       "
 
-jogar db "            ?-----------?               " 
-      db "            |   Jogar   |               " ;opcoes de jogo
-      db "            ?-----------?               "
+     nave_aliada db 0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0
+                 db 0,0,0Fh,0Fh,0,0,0,0,0,0,0,0,0,0,0
+                 db 0,0,0Fh,0Fh,0,0,0,0,0,0,0,0,0,0,0
+                 db 0,0,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0,0
+                 db 0,0,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh
+                 db 0,0,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0,0
+                 db 0,0,0Fh,0Fh,0,0,0,0,0,0,0,0,0,0,0
+                 db 0,0,0Fh,0Fh,0,0,0,0,0,0,0,0,0,0,0
+                 db 0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0
+                 
+     tam_nave EQU $ - nave_aliada
+                 
+     nave_inimiga db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
+                  db 0,0,0,0,0,0,0,0,0,9,9,0,0,0,0
+                  db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+                  db 0,0,0,0,9,9,9,9,9,0,0,0,0,0,0
+                  db 9,9,9,9,9,9,9,9,9,9,9,9,9,0,0
+                  db 0,0,0,0,9,9,9,9,9,0,0,0,0,0,0
+                  db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+                  db 0,0,0,0,0,0,0,0,0,9,9,0,0,0,0
+                  db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
+                 
+    btn_jogar db "JOGAR  "
+    btn_sair db "SAIR  "
+    
+    opc_selecionada db 0 ; utilizado no contexto do menu, 0 -> Jogar, 1 -> Sair
+    tela_atual db 0 ; 0 -> menu, 1 -> setor 1, 2 -> setor 2, 3 -> setor 3, 4 -> fim
 
-sair db "            ?-----------?               " 
-     db "            |   Sair    |               " ;opcoes de jogo
-     db "            ?-----------?               "
-
-selected_option db 0;
-
-tela_atual db 0;
-
-frame_time dw 16667;
+    frame_time dw 16667 ; tempo entre alteracoes dos elementos
+    ;sector_show_time dw 3D0900h ; tempo da escrita do setor (4s em micro seg)
+    ;sector_time dw 3938700h ; tempo de jogo de cada setor (60s em micro seg)
 
 .code 
 
@@ -122,7 +132,26 @@ acaba:
     ret
 endp 
 
-escreve_string proc
+POS_CURSOR proc
+    push ax
+    push bx
+    mov ah, 02                   
+    int 10h
+    pop bx
+    pop ax
+    ret
+endp
+
+; Ler alguam tecla
+; retorna em AL
+LER_TECLA proc
+    mov AH, 0
+    int 16h
+    ret
+endp
+
+
+ESCREVE_STRING proc
     push ES
     push BX
     
@@ -140,115 +169,171 @@ escreve_string proc
     ret
 endp
 
-inicia_video proc
+INICIA_VIDEO proc
+    push AX
+    
     xor AH, AH      ;zera AH
     mov AL, 13h     ;configura modo de video
+    
     int 10h         ;chama modo de video do sistema
+    
+    pop AX
     ret
 endp  
 
+;Desenha quadrado
+; BL cor
+; DH linha inicial
+; DL coluna inicial
+; Largura CX  
+DESENHA_BOTAO_MENU proc
 
+    ; escreve o texto do botao
+    call ESCREVE_STRING
+    
+    push AX    
+    push BX
+    push DX
+    push CX
+    
+    mov CX, 7   ;Largura do botao
+    dec DH      ; linha (com dec acaba 'subindo' uma linha)
+    sub DL, 2   ; coluna
+    
+    xor BH, BH
+    
+    ;Canto superior/esquerdo
+    call POS_CURSOR
+    mov AL, 218     
+    mov CX, 1
+    mov AH, 0AH
+    int 10h
+    ;FIM
+    
+    inc DL
+    
+    ;reta Horizontal Superior CX vezes
+    call POS_CURSOR
+    mov AL, 196
+    
+    pop CX
+    push CX
+    
+    mov AH, 0AH
+    int 10h
+    ;FIM
+    
+    add DL, CL
+    
+    ;Canto superior/direito
+    call POS_CURSOR
+    mov AL, 191 
+    mov CX, 1
+    mov AH, 0AH
+    int 10h
+    ;FIM
+    
+    inc DH
+    
+    ;Barra direita
+    call POS_CURSOR
+    mov AL, 179 
+    mov CX, 1
+    mov AH, 0AH
+    int 10h
+    ;FIM
+    
+    inc DH
+    
+    ;Canto inferior direito
+    call POS_CURSOR
+    mov AL, 217 ;reta
+    mov CX, 1
+    mov AH, 0AH
+    int 10h
+    ;FIM
+    
+    pop CX
+    push CX
+    
+    inc CX
+    
+    ;Reta Inferior
+    sub DL, CL
+    
+    call POS_CURSOR
+    mov AL, 196  
+    mov AH, 0AH
+    int 10h
+    
+    mov CX, 1
+    mov AL, 192  
+    mov AH, 0AH
+    int 10h
+    
+    dec DH
+    call POS_CURSOR
+    mov CX, 1
+    mov AL, 179  
+    mov AH, 0AH
+    int 10h
+     
+    pop CX
+    pop DX
+    pop BX
+    pop AX
+    ret
+endp
 
-verifica_tecla_menu proc
+DESENHA_BOTOES_MENU proc
+
+    push BX
+    push CX
+    push DX
+
+    cmp opc_selecionada, 0
+    je JOGAR_SELEC
     
-    mov ah, 1h              ;configura interrupcao
-    int 16h                 ;verifica tecla no buffer
-    jz nao_pressionada      ;se nao tiver, ignora
-    xor ah,ah               ;se houver, muda a configuracao e
-    int 16h                 ;pega a tecla no buffer
+    mov DH, 17
+    mov DL, 18
+    mov CX, 7
+    mov BL, branco
+    mov BP, OFFSET btn_jogar
+    call DESENHA_BOTAO_MENU
     
-    cmp ah, 50h             ;se for down arrow
-    jne ignore              ;senao, verifica pra ver se e cima
-    mov selected_option, 1  ;se sim, altera a opcao para 1 - sair
-    jmp nao_pressionada     ;vai para o fim
-   
-ignore: 
-    cmp ah, 48h             ;up arrow
-    jne confirmacao         ;se nao for nem baixo nem cima, termina
-    mov selected_option, 0  ;senao, altera a opcao para 0 - jogar
-    jmp nao_pressionada     ;vai para o fim
-       
-confirmacao:
-    cmp ah, 01Ch            ;enter
-    jne nao_pressionada     ;se nao for enter, termina
-    call troca_cena         ;se sim, chama proc para verificar qual opcao foi selecionada e trata-;a
+    mov DH, 20
+    mov CX, 7
+    mov BL, vermelho
+    mov BP, OFFSET btn_sair
+    call DESENHA_BOTAO_MENU
+    jmp FIM
     
-nao_pressionada:
+JOGAR_SELEC:
+    mov DH, 17
+    mov DL, 18
+    mov CX, 7
+    mov BL, vermelho
+    mov BP, OFFSET btn_jogar
+    call DESENHA_BOTAO_MENU
     
+    mov DH, 20
+    mov CX, 7
+    mov BL, branco
+    mov BP, OFFSET btn_sair
+    call DESENHA_BOTAO_MENU
+    
+FIM:
+    
+    pop DX
+    pop CX
+    pop BX
+
     ret
 endp
 
 
-troca_cena proc
-    
-    cmp selected_option, 1  ;verifica se a opcao selecionada e sair
-    ;jne comeca_jogo         ;senao, a opcao selecionada e jogar, e portanto comeca o jogo
-    call encerra            ;se sim, chama funcao para encerrar o jogo
-    
-;comeca_jogo:
-;    mov tela_atual, 1       ;se o jogo comeca, altera a tela
-;    mov pontuacao, 0        ;zera o tempo da fase
-;    call mudar_tela         ;chama funcao para pintar de preto informacoes do menu que nao estarao no jogo
-;    call escreve_barra      ;chama funcao para pintar barra laranja/marrom no limite da tela
-;    mov CX, nave_pos        ;passa a posicao x da nave para cx
-;    mov DX, [nave_pos+2]    ;passa a posicao y da nave para dx                  
-;    mov BX, offset nave     ;passa deseho da nave para bx
-;    call pinta_10X10        ;desenha a nave na tela na posicao indicada
-    
-;    ret
-;endp
-
-altera_opcao proc
-    push DI                     ;salva contextos
-    push SI
-    
-    mov DI, offset jogar        ;passa para DI escrita do jogar
-    mov SI, offset sair         ;passa para SI a escrita do sair
-        
-    cmp selected_option, 0      ;se a opcao escolhida for jogar
-    jne op_1                    ;senao, verifica se a opcao e 1sair
-    add DI, 16                  ;escreve colchetes de selecao no jogar e apaga colchetes do sair
-    mov BYTE PTR [DI], '['
-    add DI, 8
-    mov BYTE PTR [DI], ']'
-    add SI, 16
-    mov BYTE PTR [SI], ' '
-    add SI, 8
-    mov BYTE PTR [SI], ' '
-    jmp atualiza_string         ;vai para o fim
-
-op_1:
-    cmp selected_option, 1      ;se a opcao escolhida for sair
-    jne atualiza_string         ;senao, vai para o fim
-    add DI, 16                  ;apagacolchetes de selecao no jogar e os escreve no do sair
-    mov BYTE PTR [DI], ' '
-    add DI, 8
-    mov BYTE PTR [DI], ' '
-    add SI, 16
-    mov BYTE PTR [SI], '['
-    add SI, 8
-    mov BYTE PTR [SI], ']'
-    
-    
-atualiza_string:
-    mov dh,15                   ;configura linha para escrever a string
-    mov dl,0                    ;coluna da string
-    mov cx, 40                  ;tamanho da string
-    mov bl, 0Fh                 ;cor da string
-    mov bp,OFFSET jogar         ;posicao na memoria da string
-    call escreve_string         ;chama proc para escrever jogar
-
-    mov dh,17                   ;muda a lnha da string
-    mov bp,OFFSET sair          ;escreve sair
-    call escreve_string         ;chama proc para escrever sair
-
-    pop SI                      ;recupera contexto
-    pop DI
-    ret
-endp
-
-
-wait_frame proc 
+; recebe em 
+SLEEP proc 
     push CX                 ;salva contexto
     push DX             
     push AX             
@@ -263,49 +348,122 @@ wait_frame proc
     ret
 endp
 
+DESENHA_MENU proc
+
+    mov DH, 0
+    mov DL, 0
+    mov CX, 400
+    mov BL, verde
+    mov BP, OFFSET titulo
+    call ESCREVE_STRING
+    
+    call DESENHA_BOTOES_MENU
+    
+    mov DL, 10 ; coluna
+    mov DH, 120 ; linha
+    mov SI, offset nave_aliada
+    call DESENHA_ELEMENTO_15X9
+    
+    mov DL, 235 ; coluna
+    mov DH, 120 ; linha
+    mov SI, offset nave_inimiga
+    call DESENHA_ELEMENTO_15X9
+    
+    MENU:
+    call LER_TECLA
+    cmp AH, arrow_down
+    je MUDA_PARA_SAIR
+    cmp AH, arrow_up
+    je MUDA_PARA_JOGAR
+    cmp AL, enter
+    je APERTA_BOTAO
+    
+    jmp MENU
+    
+MUDA_PARA_SAIR:
+    cmp opc_selecionada, 1
+    je MENU
+    mov opc_selecionada, 1
+    call DESENHA_BOTOES_MENU
+    jmp MENU
+    
+MUDA_PARA_JOGAR:
+    cmp opc_selecionada, 0
+    je MENU
+    mov opc_selecionada, 0
+    call DESENHA_BOTOES_MENU
+    jmp MENU
+    
+APERTA_BOTAO:
+    cmp opc_selecionada, 0
+    jne FIM_DESENHA_MENU
+    
+    jmp MENU ; retirara quando implementar inicio de jogo
+    call INICIO_JOGO
+    
+FIM_DESENHA_MENU:
+    ret
+endp
+
+INICIO_JOGO proc
+    call LER_TECLA
+    ret
+endp
+
+
+; Funcao generica para desenhar objetos
+; SI: Posicao desenho na memoria
+; DI: Posicao do primeiro pixel do desenho no video
+; DH coluna inicial
+; DL linha inicial
+DESENHA_ELEMENTO_15X9 proc
+    push dx
+    push cx
+    push di
+    push si
+    
+    mov AX, offset memoria_video 
+    mov ES, AX 
+    mov AL, DL ;linha
+    mov BX, 320
+    push DX
+    mul BX        
+    pop DX
+    xor DL, DL
+    add AX, DX ; coluna
+    mov DI, AX
+    
+    mov dx, 9
+DESENHA_ELEMENTO_LOOP:
+    mov cx, 15
+    rep movsb
+    dec dx
+    add di, 320 - 15
+    cmp dx, 0
+    jnz DESENHA_ELEMENTO_LOOP
+    
+    pop si
+    pop di
+    pop cx
+    pop dx
+    ret
+endp
+
 INICIO:
     mov AX, @data
     mov DS, AX
-    mov AX, 0A000h
     mov ES, AX
     
-    call inicia_video
+    call INICIA_VIDEO
+    call DESENHA_MENU
     
-    mov DH, 0
-    mov DL, 0
-    mov CX, 480
-    mov BL, 2
-    mov BP, OFFSET titulo
-    call escreve_string
+    mov AH, 4Ch
+    int 21h
     
-    mov DH, 15
-    mov CX, 120
-    mov BL, 0fh
-    mov bp, OFFSET jogar
-    call escreve_string
-    
-    mov DH, 19
-    mov bp, OFFSET sair
-    call escreve_string
-    
-menu:
-    call wait_frame
-    call verifica_tecla_menu
-    cmp tela_atual, 0
-    jne jogo
-    call altera_opcao
-    jmp menu
-    
-jogo:
-    mov DX, 4               
-    mov bp,OFFSET mensagem_derrota          
-    xor CX, CX              
-    jmp espera 
-    
-espera:
-    call wait_frame         ;espera 300 frames antes de encerrar o jogo
-    inc CX
-    cmp CX, 300
-    jb espera
+    ;espera:
+    ;   call wait_frame         ;espera 300 frames antes de encerrar o jogo
+    ;  inc CX
+    ;  cmp CX, 300
+    ;  jb espera
         
 end INICIO
