@@ -359,14 +359,14 @@ DESENHA_MENU proc
     
     call DESENHA_BOTOES_MENU
     
-    mov DL, 10 ; coluna
-    mov DH, 120 ; linha
+    mov CX, 2 ; coluna
+    mov DX, 110 ; linha
     mov BL, branco
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
     
-    mov DL, 235 ; coluna
-    mov DH, 120 ; linha
+    mov CX, 304 ; coluna
+    mov DX, 110 ; linha
     mov BL, -1
     mov SI, offset nave_inimiga
     call DESENHA_ELEMENTO_15X9
@@ -416,56 +416,40 @@ endp
 ; Funcao generica para desenhar objetos
 ; SI: Posicao desenho na memoria
 ; DI: Posicao do primeiro pixel do desenho no video
-; DH coluna inicial
-; DL linha inicial
+; CX coluna inicial
+; DX linha inicial
 ; BL cor
 DESENHA_ELEMENTO_15X9 proc
     push DX
     push CX
+    push AX
     push DI
     push SI
-    
-    cmp BL, 0
-    jl DESENHA_COM_COR
+    push BX
 
-    push SI
-    
-    mov CX, 135
-MUDA_COR_LOOP:    
-    lodsb                        ; Carrega o próximo byte em AL
-    cmp AL, 0                    ; Compara com zero
-    je PULA_BYTE                 ; Se for zero, pula
+    mov AX, memoria_video
+    mov ES, AX
 
-    mov [SI - 1], BL             ; Substitui o valor por BL
+    mov AX, DX                
+    mov BX, 320               
+    mul BX                    
+    add AX, CX                
+    mov DI, AX                
 
-PULA_BYTE:
-    loop MUDA_COR_LOOP   
-    
-    pop SI
-    
-DESENHA_COM_COR:
-    mov AX, offset memoria_video 
-    mov ES, AX 
-    mov AL, DL ; linha
-    mov BX, 320
-    push DX
-    mul BX        
-    pop DX
-    xor DL, DL
-    add AX, DX ; coluna
-    mov DI, AX
-    
-    mov DX, 9
+    mov BX, 15                
+    mov DX, 9                 
+
 DESENHA_ELEMENTO_LOOP:
-    mov CX, 15
-    rep movsb
-    dec DX
-    add DI, 320 - 15
-    cmp DX, 0
-    jnz DESENHA_ELEMENTO_LOOP
-    
+    mov CX, BX                
+    rep movsb                 
+    add DI, 320 - 15          ; move DI para o início da próxima linha (offset de 320 menos 15 pixels desenhados)
+    dec DX                    
+    jnz DESENHA_ELEMENTO_LOOP 
+
+    pop BX
     pop SI
-    pop DI
+    pop DI 
+    pop AX
     pop CX
     pop DX
     ret
