@@ -232,8 +232,15 @@ endp
 ; Ler alguam tecla
 ; retorna em AL
 LER_TECLA proc
+    mov AH, 1
+    int 16h
+    JZ SAIR
+
+LER_TECLA_BUFFER:
     mov AH, 0
     int 16h
+    
+SAIR:
     ret
 endp
 
@@ -449,7 +456,7 @@ DESENHA_MENU proc
     
     mov CX, 2 ; coluna
     mov DX, 110 ; linha
-    mov BL, verde
+    mov BL, branco
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
     
@@ -465,15 +472,7 @@ DESENHA_MENU proc
     ;mov bx, 35185 ; posicao do desenho na memoria de video inimiga
     
     mov bx, 34896 ; posicao do desenho na memoria de video aliada
-MOVE_NAVE:
-    ;call MOVE_HORIZONTAL_ESQUERDA
-    ;sub bx, 5 ; nova posicao em memoria da nave...
-    
-    call MOVE_HORIZONTAL_DIREITA
-    add bx, 2
-    call SLEEP
-    loop MOVE_NAVE
-    
+
     MENU:
     call LER_TECLA
     cmp AH, arrow_down
@@ -482,6 +481,11 @@ MOVE_NAVE:
     je MUDA_PARA_JOGAR
     cmp AL, enter
     je APERTA_BOTAO
+    
+    
+    call MOVE_HORIZONTAL_DIREITA
+    add bx, 2
+    call SLEEP
     
     jmp MENU
     
