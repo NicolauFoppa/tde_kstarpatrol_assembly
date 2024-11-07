@@ -449,7 +449,7 @@ DESENHA_MENU proc
     
     mov CX, 2 ; coluna
     mov DX, 110 ; linha
-    mov BL, branco
+    mov BL, verde
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
     
@@ -524,12 +524,31 @@ endp
 ; BL cor
 DESENHA_ELEMENTO_15X9 proc
     push DX
-    push CX
     push AX
     push DI
     push SI
     push BX
-
+    push CX
+    
+    cmp BL,0
+    jl DESENHA_COM_COR
+    
+    push SI
+    mov CX, 135 ;Tamanho total do vetor(15*9 = 135)
+    
+MUDA_COR_LOOP:
+    lodsb
+    cmp AL, 0
+    je PULA_BYTE
+    mov [SI - 1], BL
+    
+PULA_BYTE:
+    loop MUDA_COR_LOOP
+    
+    pop SI
+    
+DESENHA_COM_COR:
+    pop CX
     mov AX, memoria_video
     mov ES, AX
 
@@ -553,7 +572,6 @@ DESENHA_ELEMENTO_LOOP:
     pop SI
     pop DI 
     pop AX
-    pop CX
     pop DX
     ret
 endp
