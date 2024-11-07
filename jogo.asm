@@ -107,7 +107,7 @@ MOVE_HORIZONTAL_ESQUERDA proc
     mov dx, 10       ; Número de linhas para mover
     mov si, bx       
     mov di, bx       
-    sub di, 5    ; Move 5 pixeis horizontalmente
+    sub di, 5    ; Move x pixeis horizontalmente
     ;push di          ; Empilha poder salvar a nova posição da nave
     
 MOVE_HORIZONTAL_ESQUERDA_LOOP:
@@ -123,14 +123,14 @@ MOVE_HORIZONTAL_ESQUERDA_LOOP:
     ; Limpar a area deixada para tras com pixel preto
     mov dx, 10       ; numero de linhas
     mov di, bx       ; Posicao inicial do desenho original
-    add di, 10
+    add di, 10       ; (15 - pixeis movendo)
     xor al, al      ; pixel preto
     cld
 LIMPAR_DIREITA:
-    mov cx, 5        ; Largura para pagar apagar
+    mov cx, 5        ; Largura para apagar
     rep stosb        ; Preenche com o que esta em AL
     dec dx           
-    add di, 315         
+    add di, 315      ; (320 - pixeis movendo)  
     cmp dx, 0        
     jnz LIMPAR_DIREITA
     
@@ -164,29 +164,29 @@ MOVE_HORIZONTAL_DIREITA proc
     mov dx, 10       ; Número de linhas para mover
     mov si, bx       
     mov di, bx       
-    add di, 5        ; Move 5 pixels para a direita
+    add di, 2        ; Move x pixels para a direita
     std              ; Define a direção decrescente para o movsb
 MOVE_HORIZONTAL_DIREITA_LOOP:
     mov cx, 15       ; Largura do desenho
     rep movsb        
     dec dx           
     add di, 335      ; Pula para a próxima linha na tela
-    add si, 335     
+    add si, 335    
     cmp dx, 0        
     jnz MOVE_HORIZONTAL_DIREITA_LOOP
 
     ; Limpar a área deixada para trás com pixels da cor de fundo
     mov dx, 10       ; Número de linhas para limpar
     mov di, bx       ; Posição inicial do desenho original
-    sub di, 10
+    sub di, 13       ; (15 - pixeis movendo)
     xor al, al       ; pixel preto
     std              ; Restaura para direção desc
 LIMPAR_ESQUERDA:
-    mov cx, 5        ; Largura para apagar
+    mov cx, 2        ; Largura para apagar
     rep stosb        ; Preenche a área com a cor de fundo
     dec dx           
-    add di, 325      ; Pula para a próxima linha na tela
-    cmp dx, 0        
+    add di, 322      ; Pula para a próxima linha na tela (320 + pixeis movendo)
+    cmp dx, 0         
     jnz LIMPAR_ESQUERDA
 
     ; Restaura o segmento de dados original
@@ -460,7 +460,7 @@ DESENHA_MENU proc
     call DESENHA_ELEMENTO_15X9
     
     
-    mov CX, 25
+    mov CX, 40
     ;mov SI, 1
     ;mov bx, 35185 ; posicao do desenho na memoria de video inimiga
     
@@ -470,7 +470,7 @@ MOVE_NAVE:
     ;sub bx, 5 ; nova posicao em memoria da nave...
     
     call MOVE_HORIZONTAL_DIREITA
-    add bx, 5
+    add bx, 2
     call SLEEP
     loop MOVE_NAVE
     
