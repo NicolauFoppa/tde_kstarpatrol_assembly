@@ -56,6 +56,8 @@
     opc_selecionada db 0 ; utilizado no contexto do menu, 0 -> Jogar, 1 -> Sair
     tela_atual db 0 ; 0 -> menu, 1 -> setor 1, 2 -> setor 2, 3 -> setor 3, 4 -> fim
 
+    qtd_px_mov_naves dw 5
+    
     frame_time dw 16667 ; tempo entre alteracoes dos elementos
     ;sector_show_time dw 3D0900h ; tempo da escrita do setor (4s em micro seg)
     ;sector_time dw 3938700h ; tempo de jogo de cada setor (60s em micro seg)
@@ -85,35 +87,120 @@ pinta_pixel proc
     ret
 endp
 
-move_horizontal proc
-    push CX             ;salva contextos
-    push SI
-    push DI
-    push DX
-    push AX
 
-    cmp SI, 0           ;verifica se SI representa esquerda
-    jne direita         ;se nao for 0, entao o movimento e para direita
-    add CX,9            ;se for para esquerda, deve apagar o risco do lado direito. Se for para a direita, CX ja carrega valor correto
-direita:
-    mov DI, DX          ;passa para DI valor da linha
-    add DI, 10          ;usa DI como comparacao para final da linha de pintura
-deletando:
-    xor AL, Al          ;pinta de preto
-    call pinta_pixel    ;apaga o pixel da coluna
-    inc DX              ;incrementa linha
-    cmp DX, DI          ;se ja pintou toda a coluna necessaria
-    jne deletando       ;termina. Caso contrario, continua pintando.
+
+MOVE_HORIZONTAL_ESQUERDA proc
+    push ax
+    push bx ;posicao na memoria do elemento
+    push cx
+    push si
+    push di
     
+    ;push bx
     
-    pop AX              ;recupera contextos
-    pop DX
-    pop DI
-    pop SI
-    pop CX
+    ;; cmp bx, limite_esquerda nao usar (sera 0 e 320)
+    ;;jbe FIM_MOVE_HORIZONTAL
+    std
+    mov ax, memoria_video
+    mov ds, ax
+    
+    mov dx, 10       ; Número de linhas para mover
+    mov si, bx       
+    mov di, bx       
+    sub di, 5    ; Move 5 pixeis horizontalmente
+    ;push di          ; Empilha poder salvar a nova posição da nave
+    
+MOVE_HORIZONTAL_ESQUERDA_LOOP:
+    mov cx, 15       ; Largura
+    rep movsb        
+    dec dx           
+    add di, 305      ; Pula para a linha anterior
+    add si, 305     
+    cmp dx, 0        
+    jnz MOVE_HORIZONTAL_ESQUERDA_LOOP
+      
+    
+    ; Limpar a area deixada para tras com pixel preto
+    mov dx, 10       ; numero de linhas
+    mov di, bx       ; Posicao inicial do desenho original
+    add di, 10
+    xor al, al      ; pixel preto
+    cld
+LIMPAR_DIREITA:
+    mov cx, 5        ; Largura para pagar apagar
+    rep stosb        ; Preenche com o que esta em AL
+    dec dx           
+    add di, 315         
+    cmp dx, 0        
+    jnz LIMPAR_DIREITA
+    
+    ;pop di           ; Desempilha a nova posição da nave
+    ;mov bx, di       ; Atualiza BX com a nova posição da nave
+    
+    mov ax, @data
+    mov ds, ax
+    
+    ;mov posicao_nave, bx
+
+FIM_MOVE_HORIZONTAL_ESQUERDA:
+    pop di
+    pop si
+    pop cx
+    pop bx
+    pop ax
     ret
 endp
 
+MOVE_HORIZONTAL_DIREITA proc
+    push ax
+    push bx ; Posição na memória do elemento
+    push cx
+    push si
+    push di
+    
+    mov ax, memoria_video
+    mov ds, ax
+    
+    mov dx, 10       ; Número de linhas para mover
+    mov si, bx       
+    mov di, bx       
+    add di, 5        ; Move 5 pixels para a direita
+    std              ; Define a direção decrescente para o movsb
+MOVE_HORIZONTAL_DIREITA_LOOP:
+    mov cx, 15       ; Largura do desenho
+    rep movsb        
+    dec dx           
+    add di, 335      ; Pula para a próxima linha na tela
+    add si, 335     
+    cmp dx, 0        
+    jnz MOVE_HORIZONTAL_DIREITA_LOOP
+
+    ; Limpar a área deixada para trás com pixels da cor de fundo
+    mov dx, 10       ; Número de linhas para limpar
+    mov di, bx       ; Posição inicial do desenho original
+    sub di, 10
+    xor al, al       ; pixel preto
+    std              ; Restaura para direção desc
+LIMPAR_ESQUERDA:
+    mov cx, 5        ; Largura para apagar
+    rep stosb        ; Preenche a área com a cor de fundo
+    dec dx           
+    add di, 325      ; Pula para a próxima linha na tela
+    cmp dx, 0        
+    jnz LIMPAR_ESQUERDA
+
+    ; Restaura o segmento de dados original
+    mov ax, @data
+    mov ds, ax
+    
+FIM_MOVE_HORIZONTAL_DIREITA:
+    pop di
+    pop si
+    pop cx
+    pop bx
+    pop ax
+    ret
+endp
 encerra proc
     mov ah, 1h      ;muda configuaracao e
     int 16h         ;verifica se ha tecla no buffer quando entra
@@ -343,6 +430,7 @@ SLEEP proc
     mov AH, 86h             ;configura o modo de espera
     int 15h                 ;chama a espera no sistema
     
+    pop AX
     pop DX
     pop CX
     ret
@@ -370,6 +458,21 @@ DESENHA_MENU proc
     mov BL, -1
     mov SI, offset nave_inimiga
     call DESENHA_ELEMENTO_15X9
+    
+    
+    mov CX, 25
+    ;mov SI, 1
+    ;mov bx, 35185 ; posicao do desenho na memoria de video inimiga
+    
+    mov bx, 34896 ; posicao do desenho na memoria de video aliada
+MOVE_NAVE:
+    ;call MOVE_HORIZONTAL_ESQUERDA
+    ;sub bx, 5 ; nova posicao em memoria da nave...
+    
+    call MOVE_HORIZONTAL_DIREITA
+    add bx, 5
+    call SLEEP
+    loop MOVE_NAVE
     
     MENU:
     call LER_TECLA
