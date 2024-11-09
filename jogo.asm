@@ -5,8 +5,11 @@
 .DATA
     ; cores
     verde EQU 2h
-    vermelho EQU 0Ch
+    vermelho_claro EQU 0Ch
     branco EQU 0Fh
+    ciano_claro EQU 0Bh
+    azul_claro EQU 9h
+    magenta_claro EQU 0Dh
     
     ; teclas
     arrow_down EQU 50h
@@ -27,6 +30,27 @@
            db "     / /_/ / __ `/ __/ ___/ __ \/ /     "
            db "    / ____/ /_/ / /_/ /  / /_/ / /      "
            db "   /_/    \____/\__/_/   \____/_/       "
+           
+   setor_1 db "   _____ ________________  ____     ___  " ; 41 x 6 = 246
+           db "  / ___// ____/_  __/ __ \/ __ \   <  /  "
+           db "  \__ \/ __/   / / / / / / /_/ /   / /   "
+           db " ___/ / /___  / / / /_/ / _, _/   / /    "
+           db "/____/_____/ /_/  \____/_/ |_|   /_/     "
+           db "                                         "
+           
+   setor_2 db "   _____ ________________  ____     ___  "
+           db "  / ___// ____/_  __/ __ \/ __ \   |__ \ "
+           db "  \__ \/ __/   / / / / / / /_/ /   __/ / "
+           db " ___/ / /___  / / / /_/ / _, _/   / __/  "
+           db "/____/_____/ /_/  \____/_/ |_|   /____/  "
+           db "                                         "
+           
+   setor_3 db "   _____ ________________  ____     _____"
+           db "  / ___// ____/_  __/ __ \/ __ \   |__  /"
+           db "  \__ \/ __/   / / / / / / /_/ /    /_ < "
+           db " ___/ / /___  / / / /_/ / _, _/   ___/ / "
+           db "/____/_____/ /_/  \____/_/ |_|   /____/  "
+           db "                                         "
 
      nave_aliada db 0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0
                  db 0,0,0Fh,0Fh,0,0,0,0,0,0,0,0,0,0,0
@@ -52,6 +76,7 @@
                  
     btn_jogar db "JOGAR  "
     btn_sair db "SAIR  "
+    nave_atual db 0 ; 0 -> nave aliada, 1 -> nave inimiga
     
     opc_selecionada db 0 ; utilizado no contexto do menu, 0 -> Jogar, 1 -> Sair
     tela_atual db 0 ; 0 -> menu, 1 -> setor 1, 2 -> setor 2, 3 -> setor 3, 4 -> fim
@@ -100,15 +125,14 @@ MOVE_HORIZONTAL_ESQUERDA proc
     
     ;; cmp bx, limite_esquerda nao usar (sera 0 e 320)
     ;;jbe FIM_MOVE_HORIZONTAL
-    std
     mov ax, memoria_video
     mov ds, ax
     
-    mov dx, 10       ; Número de linhas para mover
+    mov dx, 10       ; N?mero de linhas para mover
     mov si, bx       
     mov di, bx       
-    sub di, 5    ; Move x pixeis horizontalmente
-    ;push di          ; Empilha poder salvar a nova posição da nave
+    sub di, 2    ; Move x pixeis horizontalmente
+    ;push di          ; Empilha poder salvar a nova posi??o da nave
     
 MOVE_HORIZONTAL_ESQUERDA_LOOP:
     mov cx, 15       ; Largura
@@ -123,19 +147,19 @@ MOVE_HORIZONTAL_ESQUERDA_LOOP:
     ; Limpar a area deixada para tras com pixel preto
     mov dx, 10       ; numero de linhas
     mov di, bx       ; Posicao inicial do desenho original
-    add di, 10       ; (15 - pixeis movendo)
+    add di, 13       ; (15 - pixeis movendo)
     xor al, al      ; pixel preto
     cld
 LIMPAR_DIREITA:
-    mov cx, 5        ; Largura para apagar
+    mov cx, 2        ; Largura para apagar
     rep stosb        ; Preenche com o que esta em AL
     dec dx           
-    add di, 315      ; (320 - pixeis movendo)  
+    add di, 318      ; (320 - pixeis movendo)  
     cmp dx, 0        
     jnz LIMPAR_DIREITA
     
-    ;pop di           ; Desempilha a nova posição da nave
-    ;mov bx, di       ; Atualiza BX com a nova posição da nave
+    ;pop di           ; Desempilha a nova posi??o da nave
+    ;mov bx, di       ; Atualiza BX com a nova posi??o da nave
     
     mov ax, @data
     mov ds, ax
@@ -153,7 +177,7 @@ endp
 
 MOVE_HORIZONTAL_DIREITA proc
     push ax
-    push bx ; Posição na memória do elemento
+    push bx ; Posi??o na mem?ria do elemento
     push cx
     push si
     push di
@@ -161,31 +185,31 @@ MOVE_HORIZONTAL_DIREITA proc
     mov ax, memoria_video
     mov ds, ax
     
-    mov dx, 10       ; Número de linhas para mover
+    mov dx, 10       ; N?mero de linhas para mover
     mov si, bx       
     mov di, bx       
     add di, 2        ; Move x pixels para a direita
-    std              ; Define a direção decrescente para o movsb
+    std              ; Define a dire??o decrescente para o movsb
 MOVE_HORIZONTAL_DIREITA_LOOP:
     mov cx, 15       ; Largura do desenho
     rep movsb        
     dec dx           
-    add di, 335      ; Pula para a próxima linha na tela
+    add di, 335      ; Pula para a pr?xima linha na tela
     add si, 335    
     cmp dx, 0        
     jnz MOVE_HORIZONTAL_DIREITA_LOOP
 
-    ; Limpar a área deixada para trás com pixels da cor de fundo
-    mov dx, 10       ; Número de linhas para limpar
-    mov di, bx       ; Posição inicial do desenho original
+    ; Limpar a ?rea deixada para tr?s com pixels da cor de fundo
+    mov dx, 10       ; N?mero de linhas para limpar
+    mov di, bx       ; Posi??o inicial do desenho original
     sub di, 13       ; (15 - pixeis movendo)
     xor al, al       ; pixel preto
-    std              ; Restaura para direção desc
+    std              ; Restaura para dire??o desc
 LIMPAR_ESQUERDA:
     mov cx, 2        ; Largura para apagar
-    rep stosb        ; Preenche a área com a cor de fundo
+    rep stosb        ; Preenche a ?rea com a cor de fundo
     dec dx           
-    add di, 322      ; Pula para a próxima linha na tela (320 + pixeis movendo)
+    add di, 322      ; Pula para a pr?xima linha na tela (320 + pixeis movendo)
     cmp dx, 0         
     jnz LIMPAR_ESQUERDA
 
@@ -397,7 +421,7 @@ DESENHA_BOTOES_MENU proc
     
     mov DH, 20
     mov CX, 7
-    mov BL, vermelho
+    mov BL, vermelho_claro
     mov BP, OFFSET btn_sair
     call DESENHA_BOTAO_MENU
     jmp FIM
@@ -406,7 +430,7 @@ JOGAR_SELEC:
     mov DH, 17
     mov DL, 18
     mov CX, 7
-    mov BL, vermelho
+    mov BL, vermelho_claro
     mov BP, OFFSET btn_jogar
     call DESENHA_BOTAO_MENU
     
@@ -443,8 +467,61 @@ SLEEP proc
     ret
 endp
 
-DESENHA_MENU proc
+MOVE_NAVES_MENU proc 
+    cmp nave_atual, 0
+    je MOVER_NAVE_ALIADA
+    
+MOVER_NAVE_INIMIGA:
+    call MOVE_HORIZONTAL_ESQUERDA
+    sub bx, 2
+    call SLEEP
+    jmp CHECA_NAVE
+    
+MOVER_NAVE_ALIADA:
+    call MOVE_HORIZONTAL_DIREITA
+    add bx, 2
+    call SLEEP
+    
+CHECA_NAVE:
+    cmp nave_atual, 0
+    je CMP_NAVE_ALIADA
+   
+    cmp bx, 34886
+    jle DESENHA_NAVE_ALIADA
+    jmp SAIR_MOVE_NAVES_MENU
+    
+CMP_NAVE_ALIADA:
+    cmp bx, 35197
+    jge DESENHA_NAVE_INIMIGA
+    
+    jmp SAIR_MOVE_NAVES_MENU
+    
+DESENHA_NAVE_ALIADA:
+    xor BX, BX
+    mov CX, 2 ; coluna
+    mov DX, 110 ; linha
+    mov BL, branco
+    mov SI, offset nave_aliada
+    call DESENHA_ELEMENTO_15X9
+    mov byte ptr [nave_atual], 0
+    mov bx, 34896 ; posicao do desenho na memoria de video aliada
+    jmp SAIR_MOVE_NAVES_MENU
+    
+DESENHA_NAVE_INIMIGA:
+    xor BX, BX
+    mov CX, 304 ; coluna
+    mov DX, 110 ; linha
+    mov BL, -1
+    mov SI, offset nave_inimiga
+    call DESENHA_ELEMENTO_15X9
+    mov byte ptr [nave_atual], 1
+    mov bx, 35185 ; posicao do desenho na memoria de video inimiga
+    
+SAIR_MOVE_NAVES_MENU:
+    ret
+endp
 
+DESENHA_MENU proc
     mov DH, 0
     mov DL, 0
     mov CX, 400
@@ -453,27 +530,18 @@ DESENHA_MENU proc
     call ESCREVE_STRING
     
     call DESENHA_BOTOES_MENU
+    ;jmp DESENHA_NAVE_ALIADA
     
     mov CX, 2 ; coluna
     mov DX, 110 ; linha
     mov BL, branco
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
-    
-    mov CX, 304 ; coluna
-    mov DX, 110 ; linha
-    mov BL, -1
-    mov SI, offset nave_inimiga
-    call DESENHA_ELEMENTO_15X9
-    
-    
-    mov CX, 40
-    ;mov SI, 1
-    ;mov bx, 35185 ; posicao do desenho na memoria de video inimiga
-    
+    mov byte ptr [nave_atual], 0
     mov bx, 34896 ; posicao do desenho na memoria de video aliada
 
-    MENU:
+MENU:
+    call MOVE_NAVES_MENU
     call LER_TECLA
     cmp AH, arrow_down
     je MUDA_PARA_SAIR
@@ -481,11 +549,6 @@ DESENHA_MENU proc
     je MUDA_PARA_JOGAR
     cmp AL, enter
     je APERTA_BOTAO
-    
-    
-    call MOVE_HORIZONTAL_DIREITA
-    add bx, 2
-    call SLEEP
     
     jmp MENU
     
@@ -507,15 +570,64 @@ APERTA_BOTAO:
     cmp opc_selecionada, 0
     jne FIM_DESENHA_MENU
     
-    jmp MENU ; retirara quando implementar inicio de jogo
     call INICIO_JOGO
     
 FIM_DESENHA_MENU:
     ret
 endp
 
+LIMPAR_TELA proc
+    mov AX, memoria_video
+    mov ES, AX
+    mov DI, 0
+    
+    mov AL, 0h
+    mov CX, 64000
+    
+    rep stosb
+    
+    ret
+endp
+
+; setar qual tela esta (1,2,3)
+MOSTRA_SETOR proc
+    cmp tela_atual, 2
+    je PRINTA_SET_2
+    
+    cmp tela_atual, 3
+    je PRINTA_SET_2
+    
+    mov BP, OFFSET setor_1
+    mov BL, ciano_claro
+    jmp PRINTA_E_SAI
+    
+PRINTA_SET_2:
+    mov BP, OFFSET setor_2
+    mov BL, azul_claro
+    jmp PRINTA_E_SAI
+    
+PRINTA_SET_3:
+    mov BP, OFFSET setor_3
+    mov BL, magenta_claro
+       
+PRINTA_E_SAI: 
+    
+    call LIMPAR_TELA
+    
+    mov DH, 0
+    mov DL, 0
+    mov CX, 246
+    call ESCREVE_STRING
+    ret
+endp
+
 INICIO_JOGO proc
+    mov [tela_atual], 1
+    call MOSTRA_SETOR
+    
+LOOP_JOGO:
     call LER_TECLA
+    jmp LOOP_JOGO
     ret
 endp
 
@@ -564,11 +676,13 @@ DESENHA_COM_COR:
 
     mov BX, 15                
     mov DX, 9                 
-
+              
+    cld
+              
 DESENHA_ELEMENTO_LOOP:
     mov CX, BX                
     rep movsb                 
-    add DI, 320 - 15          ; move DI para o início da próxima linha (offset de 320 menos 15 pixels desenhados)
+    add DI, 320 - 15          ; move DI para o in?cio da pr?xima linha (offset de 320 menos 15 pixels desenhados)
     dec DX                    
     jnz DESENHA_ELEMENTO_LOOP 
 
@@ -586,6 +700,7 @@ INICIO:
     mov ES, AX
     
     call INICIA_VIDEO
+    mov [tela_atual], 0
     call DESENHA_MENU
     
     mov AH, 4Ch
