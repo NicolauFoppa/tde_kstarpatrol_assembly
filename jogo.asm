@@ -1,4 +1,4 @@
-                                  .MODEL SMALL
+.MODEL SMALL
 
 .STACK 100H
 
@@ -22,12 +22,13 @@
     espaco EQU 32h
 
     memoria_video equ 0A000h
-    limite_inferior equ 54752 ; 320 * (200 - 29) + 32 (200 - altura do desenho + altura do terreno)
+    limite_inferior equ 48640 ; 
     limite_superior equ 6432 ; 320 * 20 + 32
     
     ;posicoes naves
     
     nave_principal dw ?
+    velocidade_nave_principal equ 640 ; 2 linhas por vez
     
     vidas db 1
           db 1
@@ -103,26 +104,26 @@
                   db 0,0,0,0,0,0,0,0,0,9,9,0,0,0,0
                   db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
     
-    cenario db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
+    cenario db 39 dup(0H), 3 dup(06H), 26 dup(0H), 1 dup(06H), 17 dup(0H), 1 dup(06H), 188 dup(0H), 1 dup(06H), 11 dup(0H), 1 dup(06H), 8 dup(0H), 1 dup(06H), 23 dup(0H)  
+            db 21 dup(0H), 1 dup(06H), 15 dup(0H), 7 dup(06H), 23 dup(0H), 2 dup(06H), 17 dup(0H), 2 dup(06H), 24 dup(0H), 3 dup(06H), 123 dup(0H), 1 dup(06H), 6 dup(0H), 2 dup(06H), 27 dup(0H), 3 dup(06H), 10 dup(0H), 1 dup(06H), 8 dup(0H), 2 dup(06H), 22 dup(0H)  
+            db 20 dup(0H), 3 dup(06H), 11 dup(0H), 12 dup(06H), 19 dup(0H), 5 dup(06H), 10 dup(0H), 2 dup(06H), 3 dup(0H), 4 dup(06H), 20 dup(0H), 10 dup(06H), 20 dup(0H), 1 dup(06H), 2 dup(0H), 1 dup(06H), 19 dup(0H), 1 dup(06H), 73 dup(0H), 5 dup(06H), 3 dup(0H), 3 dup(06H), 20 dup(0H), 3 dup(06H), 3 dup(0H), 5 dup(06H), 8 dup(0H), 3 dup(06H), 6 dup(0H), 6 dup(06H), 19 dup(0bH)        
+            db 18 dup(0bH), 6 dup(06H), 8 dup(0H), 16 dup(06H), 17 dup(0bH), 6 dup(06H), 6 dup(0H), 17 dup(06H), 11 dup(0H), 17 dup(06H), 12 dup(0H), 11 dup(06H), 16 dup(0bH), 3 dup(06H), 67 dup(0bH), 11 dup(06H), 1 dup(0H), 9 dup(06H), 11 dup(0bH), 28 dup(06H), 2 dup(0H), 11 dup(06H), 16 dup(0bH)      
+            db 15 dup(0bH), 37 dup(06H), 10 dup(0bH), 83 dup(06H), 13 dup(0bH), 7 dup(06H), 64 dup(0bH), 24 dup(06H), 6 dup(0bH), 47 dup(06H), 14 dup(0bH)     
+            db 54 dup(06H), 6 dup(0bH), 86 dup(06H), 11 dup(0bH), 11 dup(06H), 53 dup(0bH), 34 dup(06H), 4 dup(0bH), 61 dup(06H) 
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
+            db 320 dup(06H)
             
                  
     btn_jogar db "JOGAR  "
@@ -139,8 +140,8 @@
     qtd_px_mov_naves dw 5
     
     frame_time dw 16667 ; tempo entre alteracoes dos elementos
-    ;sector_show_time dw 3D0900h ; tempo da escrita do setor (4s em micro seg)
-    ;sector_time dw 3938700h ; tempo de jogo de cada setor (60s em micro seg)
+    sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
+    sector_time dw 0393h, 8700h ; tempo de jogo de cada setor (60s em micro seg)
 
 .code 
 
@@ -505,14 +506,14 @@ FIM:
 endp
 
 
-; recebe em 
+; recebe em CX:DX o tempo de espera
 SLEEP proc 
     push CX                 ;salva contexto
     push DX             
     push AX             
       
-    xor CX, CX              ;zera CX, pois o tempo e definido por CX:DX
-    mov DX, frame_time      ;espera 16667 microsegundos, assim ha 60 frames por segundo
+    ;xor CX, CX              ;zera CX, pois o tempo e definido por CX:DX
+    ;mov DX, frame_time      ;espera 16667 microsegundos, assim ha 60 frames por segundo
     mov AH, 86h             ;configura o modo de espera
     int 15h                 ;chama a espera no sistema
     
@@ -529,12 +530,16 @@ MOVE_NAVES_MENU proc
 MOVER_NAVE_INIMIGA:
     call MOVE_HORIZONTAL_ESQUERDA
     sub bx, 2
+    xor cx, cx
+    mov dx, frame_time
     call SLEEP
     jmp CHECA_NAVE
     
 MOVER_NAVE_ALIADA:
     call MOVE_HORIZONTAL_DIREITA
     add bx, 2
+    xor cx, cx
+    mov dx, frame_time
     call SLEEP
     
 CHECA_NAVE:
@@ -697,7 +702,7 @@ loop_vidas:
     pop CX
     
 PULA_LOOP_VIDAS:
-    add AX, 21 ; 13 de espaco entre naves + 9 da altura da mesma
+    add AX, 19 ; 10 de espaco entre naves + 9 da altura da mesma
     loop loop_vidas
 
     pop AX
@@ -709,8 +714,21 @@ PULA_LOOP_VIDAS:
 endp
 
 DESENHA_CENARIO proc
-        
+    mov ax, memoria_video       ; Segmento de mem?ria de v?deo (modo gr?fico 13h)
+    mov es, ax           ; Aponta ES para o segmento de v?deo
 
+    mov si, offset cenario ; Aponta SI para o in?cio do vetor cenario
+    mov di, 57600            ; Offset na mem?ria de v?deo (in?cio de A000:0000)
+
+    mov cx, 6400         ; 9600 pixels (correspondente ao tamanho total de seu vetor, supondo que s?o pixels)
+
+    draw_loop:
+        lodsb            ; Carrega o pr?ximo byte de DS:SI (vetor 'cenario') no AL
+        stosb            ; Armazena o valor de AL diretamente em ES:DI (pixel na tela)
+        loop draw_loop   ; Repetir at? escrever todos os pixels
+
+ret
+    
 
     ret
 endp
@@ -746,11 +764,9 @@ PRINTA_E_SAI:
     
     call ESCREVE_STRING
     
-    ; Delay de 4 segundos (aproximadamente)
-    mov CX, 003DH
-    mov DX, 0900H
-    mov AH, 86H
-    int 15H
+    mov CX, [sector_show_time]
+    mov DX, [sector_show_time + 2]
+    call SLEEP
     
     call LIMPAR_TELA
     ret
@@ -763,19 +779,19 @@ MOVE_NAVE_BAIXO proc
     push si
     push di
     
-    mov bx, nave_principal  ; Carrega a posição atual da nave
+    mov bx, nave_principal
     
     cmp bx, limite_inferior  ; Verifica se a nave atingiu o limite inferior
-    jae FIM_MOVE_NAVE_BAIXO  ; Se já atingiu o limite inferior, não move a nave
+    jae FIM_MOVE_NAVE_BAIXO  ; Se j? atingiu o limite inferior, n?o move a nave
 
     mov ax, memoria_video
     mov ds, ax
     
-    mov dx, 15         ; Número de linhas para mover
+    mov dx, 15         ; N?mero de linhas para mover
     mov si, bx         
-    mov di, bx         
-    add di, 1600       ; Move 5 linha para baixo
-    push di            ; Empilha para salvar a nova posição da nave
+    mov di, bx    
+    add di, velocidade_nave_principal       ; Move 5 linha para baixo
+    push di            ; Empilha para salvar a nova posi??o da nave
     
     add di, 2880       ; inicio da ultima linha da nave
     add si, 2880
@@ -820,11 +836,12 @@ MOVE_NAVE_CIMA proc
     mov ax, memoria_video
     mov ds, ax
     
-    mov dx, 15       ; Número de linhas para mover
+    mov dx, 15       ; Numero de linhas para mover
     mov si, bx       
-    mov di, bx       
-    sub di, 1600     ; Move 5 linha para cima
-    push di          ; Empilha poder salvar a nova posição da nave
+    mov di, bx   
+    ;mov ax, velocidade_nave_principal
+    sub di, velocidade_nave_principal     ; Move x linhas para cima
+    push di          ; Empilha poder salvar a nova posi??o da nave
     
 MOVE_NAVE_CIMA_LOOP:
     mov cx, 15       ; Largura
@@ -835,8 +852,8 @@ MOVE_NAVE_CIMA_LOOP:
     cmp dx, 0        
     jnz MOVE_NAVE_CIMA_LOOP
     
-    pop di           ; Desempilha a nova posição da nave
-    mov bx, di       ; Atualiza BX com a nova posição da nave
+    pop di           ; Desempilha a nova posi??o da nave
+    mov bx, di       ; Atualiza BX com a nova posi??o da nave
     
     mov ax, @data
     mov ds, ax
