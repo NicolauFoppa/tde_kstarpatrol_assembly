@@ -1,4 +1,4 @@
-.MODEL SMALL
+                                  .MODEL SMALL
 
 .STACK 100H
 
@@ -19,19 +19,33 @@
     arrow_down EQU 50h
     arrow_up EQU 48h
     enter EQU 0Dh
+    espaco EQU 32h
 
     memoria_video equ 0A000h
+    limite_inferior equ 54752 ; 320 * (200 - 29) + 32 (200 - altura do desenho + altura do terreno)
+    limite_superior equ 6432 ; 320 * 20 + 32
     
     ;posicoes naves
     
-    cores db azul
-          db vermelho_claro
-          db magenta_claro
-          db ciano_claro
-          db verde
-          db vermelho
-          db azul_claro
-          db magenta
+    nave_principal dw ?
+    
+    vidas db 1
+          db 1
+          db 1
+          db 0
+          db 1
+          db 1
+          db 1
+          db 1
+                    
+    cor_vida db 4h
+             db 5h
+             db 7h
+             db 0Eh
+             db 0Dh
+             db 0Ch
+             db 0Ah
+             db 9h
 
 ; desenhos
     
@@ -654,22 +668,43 @@ DESENHA_VIDAS proc
     push DX
     push SI
     push AX
-    
-    xor SI, SI          ; SI = 0, começando pelo primeiro elemento
-    mov DI, 8           ; quantidade de vezes que vai executar o loop de desenho de naves
-    mov AX, 20
+              
+    mov CX, 8           ; 8 elementos no array "vidas"
+    xor AX, AX
+    mov AX, 20 ; posicao (linha) da primeira nave 
+
 loop_vidas:
-    xor BX, BX
-    mov CX, 0 ; coluna
-    mov DX, AX ; Carrega o valor atual em DX
-    mov BL, [cores + SI]
-    mov SI, offset nave_aliada
-    call DESENHA_ELEMENTO_15X9
-    add SI, 1            ; Incrementa SI para o próximo elemento
-    add AX, 20
+    xor SI, SI          ; Zera SI, necess?rio para a fun??o de desenho
+    xor BX, BX          ; Zera BX, que ser? usado para a cor
+    mov DI, CX          
     dec DI
-    jnz loop_vidas
+              
+    mov DX, AX      ; DX recebe a linha onde a nave sera desenhada
     
+    ; caso a nave ja river sido destruida, nao desenha a mesma
+    mov BL, [vidas + DI]
+    cmp BL, 0
+    je PULA_LOOP_VIDAS
+    
+    ; Carrega a cor correspondente da nave em "cor_vida" no ?ndice DI
+    mov BL, [cor_vida + DI]  ; BL recebe a cor da nave
+
+    push CX
+    mov CX, 0          ; Coluna 0 para todas as naves
+
+    mov SI, offset nave_aliada   
+    call DESENHA_ELEMENTO_15X9   ; Chama a funcao para desenhar a nave
+    pop CX
+    
+PULA_LOOP_VIDAS:
+    add AX, 21 ; 13 de espaco entre naves + 9 da altura da mesma
+    loop loop_vidas
+
+    pop AX
+    pop SI
+    pop DX
+    pop CX
+    pop BX
     ret
 endp
 
@@ -707,7 +742,7 @@ PRINTA_E_SAI:
     ; Centralizar o texto
     mov DH, 9          ; Linha inicial = 9 (meio vertical da tela para altura de 6 linhas)
     mov DL, 0          ; Coluna inicial = 0 (texto tem 40 caracteres de largura)
-    mov CX, 240        ; Número de caracteres a escrever (40 x 6)
+    mov CX, 240        ; N?mero de caracteres a escrever (40 x 6)
     
     call ESCREVE_STRING
     
@@ -721,15 +756,138 @@ PRINTA_E_SAI:
     ret
 endp
 
+MOVE_NAVE_BAIXO proc
+    push ax
+    push bx
+    push cx
+    push si
+    push di
+    
+    mov bx, nave_principal  ; Carrega a posição atual da nave
+    
+    cmp bx, limite_inferior  ; Verifica se a nave atingiu o limite inferior
+    jae FIM_MOVE_NAVE_BAIXO  ; Se já atingiu o limite inferior, não move a nave
+
+    mov ax, memoria_video
+    mov ds, ax
+    
+    mov dx, 15         ; Número de linhas para mover
+    mov si, bx         
+    mov di, bx         
+    add di, 1600       ; Move 5 linha para baixo
+    push di            ; Empilha para salvar a nova posição da nave
+    
+    add di, 2880       ; inicio da ultima linha da nave
+    add si, 2880
+MOVE_NAVE_BAIXO_LOOP:
+    mov cx, 15         ; Largura
+    rep movsb          
+    dec dx             
+    sub di, 335        ; Proxima linha
+    sub si, 335        
+    cmp dx, 0         
+    jnz MOVE_NAVE_BAIXO_LOOP
+
+    pop di            
+    mov bx, di         
+    
+    mov ax, @data
+    mov ds, ax
+    
+    mov nave_principal, bx 
+
+FIM_MOVE_NAVE_BAIXO:
+    pop di
+    pop si
+    pop cx
+    pop bx
+    pop ax
+    ret
+endp
+
+MOVE_NAVE_CIMA proc
+    push ax
+    push bx
+    push cx
+    push si
+    push di
+    
+    mov bx, nave_principal
+    
+    cmp bx, limite_superior
+    jbe FIM_MOVE_NAVE_CIMA
+    
+    mov ax, memoria_video
+    mov ds, ax
+    
+    mov dx, 15       ; Número de linhas para mover
+    mov si, bx       
+    mov di, bx       
+    sub di, 1600     ; Move 5 linha para cima
+    push di          ; Empilha poder salvar a nova posição da nave
+    
+MOVE_NAVE_CIMA_LOOP:
+    mov cx, 15       ; Largura
+    rep movsb        
+    dec dx           
+    add di, 305      ; Pula para a linha anterior
+    add si, 305     
+    cmp dx, 0        
+    jnz MOVE_NAVE_CIMA_LOOP
+    
+    pop di           ; Desempilha a nova posição da nave
+    mov bx, di       ; Atualiza BX com a nova posição da nave
+    
+    mov ax, @data
+    mov ds, ax
+    
+    mov nave_principal, bx
+
+FIM_MOVE_NAVE_CIMA:
+    pop di
+    pop si
+    pop cx
+    pop bx
+    pop ax
+    ret
+endp
+
 INICIO_JOGO proc
     mov [tela_atual], 1
     call MOSTRA_SETOR
     
+    mov CX, 47 ; coluna
+    mov DX, 95 ; linha
+    mov BL, branco
+    mov SI, offset nave_aliada
+    call DESENHA_ELEMENTO_15X9
+    mov [nave_principal], 30447 ; posicao do desenho na memoria de video aliada
+    
 LOOP_JOGO:
-    call LER_TECLA
     call DESENHA_HEADER
     call DESENHA_VIDAS
     call DESENHA_CENARIO
+    
+    call LER_TECLA
+    cmp AH, arrow_down
+    je APERTOU_BAIXO
+    cmp AH, arrow_up
+    je APERTOU_CIMA
+    cmp AH, espaco
+    je APERTOU_ESPACO
+    jmp LOOP_JOGO
+
+APERTOU_BAIXO:
+    call MOVE_NAVE_BAIXO
+    jmp LOOP_JOGO
+
+APERTOU_CIMA:
+    call MOVE_NAVE_CIMA
+    jmp LOOP_JOGO
+
+APERTOU_ESPACO:
+    ;call ATIRAR
+    
     jmp LOOP_JOGO
     ret
 endp
@@ -803,16 +961,11 @@ INICIO:
     mov ES, AX
     
     call INICIA_VIDEO
-    mov [tela_atual], 0
+    mov [tela_atual], 0  
     call DESENHA_MENU
     
     mov AH, 4Ch
     int 21h
     
-    ;espera:
-    ;   call wait_frame         ;espera 300 frames antes de encerrar o jogo
-    ;  inc CX
-    ;  cmp CX, 300
-    ;  jb espera
         
 end INICIO
