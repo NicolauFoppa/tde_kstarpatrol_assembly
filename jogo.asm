@@ -5,11 +5,15 @@
 .DATA
     ; cores
     verde EQU 2h
+    vermelho EQU 4h
     vermelho_claro EQU 0Ch
     branco EQU 0Fh
     ciano_claro EQU 0Bh
     azul_claro EQU 9h
+    azul EQU 1h
     magenta_claro EQU 0Dh
+    magenta EQU 5h
+    
     
     ; teclas
     arrow_down EQU 50h
@@ -17,6 +21,17 @@
     enter EQU 0Dh
 
     memoria_video equ 0A000h
+    
+    ;posicoes naves
+    
+    vidas dw 16
+          dw 28
+          dw 30
+          dw 42
+          dw 54
+          dw 66
+          dw 78
+          dw 90
 
 ; desenhos
     
@@ -31,26 +46,26 @@
            db "    / ____/ /_/ / /_/ /  / /_/ / /      "
            db "   /_/    \____/\__/_/   \____/_/       "
            
-   setor_1 db "   _____ ________________  ____     ___  " ; 41 x 6 = 246
-           db "  / ___// ____/_  __/ __ \/ __ \   <  /  "
-           db "  \__ \/ __/   / / / / / / /_/ /   / /   "
-           db " ___/ / /___  / / / /_/ / _, _/   / /    "
-           db "/____/_____/ /_/  \____/_/ |_|   /_/     "
-           db "                                         "
+   setor_1 db "   _____ ________________  ____     ___ " ; 40 x 6 = 240
+           db "  / ___// ____/_  __/ __ \/ __ \   <  / "
+           db "  \__ \/ __/   / / / / / / /_/ /   / /  "
+           db " ___/ / /___  / / / /_/ / _, _/   / /   "
+           db "/____/_____/ /_/  \____/_/ |_|   /_/    "
+           db "                                        "
            
-   setor_2 db "   _____ ________________  ____     ___  "
-           db "  / ___// ____/_  __/ __ \/ __ \   |__ \ "
-           db "  \__ \/ __/   / / / / / / /_/ /   __/ / "
-           db " ___/ / /___  / / / /_/ / _, _/   / __/  "
-           db "/____/_____/ /_/  \____/_/ |_|   /____/  "
-           db "                                         "
+   setor_2 db "   _____ ________________  ____    ___  "
+           db "  / ___// ____/_  __/ __ \/ __ \  |__ \ "
+           db "  \__ \/ __/   / / / / / / /_/ /  __/ / "
+           db " ___/ / /___  / / / /_/ / _, _/  / __/  "
+           db "/____/_____/ /_/  \____/_/ |_|  /____/  "
+           db "                                        "
            
-   setor_3 db "   _____ ________________  ____     _____"
-           db "  / ___// ____/_  __/ __ \/ __ \   |__  /"
-           db "  \__ \/ __/   / / / / / / /_/ /    /_ < "
-           db " ___/ / /___  / / / /_/ / _, _/   ___/ / "
-           db "/____/_____/ /_/  \____/_/ |_|   /____/  "
-           db "                                         "
+   setor_3 db "   _____ ________________  ____    _____"
+           db "  / ___// ____/_  __/ __ \/ __ \  |__  /"
+           db "  \__ \/ __/   / / / / / / /_/ /   /_ < "
+           db " ___/ / /___  / / / /_/ / _, _/  ___/ / "
+           db "/____/_____/ /_/  \____/_/ |_|  /____/  "
+           db "                                        "
 
      nave_aliada db 0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0
                  db 0,0,0Fh,0Fh,0,0,0,0,0,0,0,0,0,0,0
@@ -73,10 +88,36 @@
                   db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
                   db 0,0,0,0,0,0,0,0,0,9,9,0,0,0,0
                   db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
+    
+    cenario db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            
                  
     btn_jogar db "JOGAR  "
     btn_sair db "SAIR  "
     nave_atual db 0 ; 0 -> nave aliada, 1 -> nave inimiga
+    
+    score db "SCORE: "
+    tempo db "TEMPO: "
+    
     
     opc_selecionada db 0 ; utilizado no contexto do menu, 0 -> Jogar, 1 -> Sair
     tela_atual db 0 ; 0 -> menu, 1 -> setor 1, 2 -> setor 2, 3 -> setor 3, 4 -> fim
@@ -538,7 +579,7 @@ DESENHA_MENU proc
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
     mov byte ptr [nave_atual], 0
-    mov bx, 34896 ; posicao do desenho na memoria de video aliada
+    mov BX, 34896 ; posicao do desenho na memoria de video aliada
 
 MENU:
     call MOVE_NAVES_MENU
@@ -589,13 +630,61 @@ LIMPAR_TELA proc
     ret
 endp
 
+DESENHA_HEADER proc
+    mov BP, OFFSET score
+    mov DH, 0
+    mov DL, 0
+    mov CX, 7
+    mov BL, branco
+    call ESCREVE_STRING
+    
+    mov BP, OFFSET tempo
+    mov DH, 0
+    mov DL, 31
+    mov CX, 7
+    mov BL, branco
+    call ESCREVE_STRING
+
+    ret
+endp
+
+DESENHA_VIDAS proc
+    push BX
+    push CX
+    push DX
+    push SI
+    push AX
+    
+    xor SI, SI          ; SI = 0, começando pelo primeiro elemento
+    mov CX, 8           ; 8 elementos no array "vidas"
+
+loop_vidas:
+    xor BX, BX
+    mov CX, 0 ; coluna
+    mov DX, [vidas + SI] ; Carrega o valor atual em DX
+    mov BL, vermelho
+    mov SI, offset nave_aliada
+    call DESENHA_ELEMENTO_15X9
+    add SI, 2            ; Incrementa SI para o próximo elemento
+    loop loop_vidas
+    
+    ret
+endp
+
+DESENHA_CENARIO proc
+        
+
+
+    ret
+endp
+
 ; setar qual tela esta (1,2,3)
 MOSTRA_SETOR proc
     cmp tela_atual, 2
     je PRINTA_SET_2
     
     cmp tela_atual, 3
-    je PRINTA_SET_2
+    je PRINTA_SET_3
     
     mov BP, OFFSET setor_1
     mov BL, ciano_claro
@@ -609,15 +698,24 @@ PRINTA_SET_2:
 PRINTA_SET_3:
     mov BP, OFFSET setor_3
     mov BL, magenta_claro
-       
-PRINTA_E_SAI: 
     
+PRINTA_E_SAI:
     call LIMPAR_TELA
     
-    mov DH, 0
-    mov DL, 0
-    mov CX, 246
+    ; Centralizar o texto
+    mov DH, 9          ; Linha inicial = 9 (meio vertical da tela para altura de 6 linhas)
+    mov DL, 0          ; Coluna inicial = 0 (texto tem 40 caracteres de largura)
+    mov CX, 240        ; Número de caracteres a escrever (40 x 6)
+    
     call ESCREVE_STRING
+    
+    ; Delay de 4 segundos (aproximadamente)
+    mov CX, 003DH
+    mov DX, 0900H
+    mov AH, 86H
+    int 15H
+    
+    call LIMPAR_TELA
     ret
 endp
 
@@ -627,6 +725,9 @@ INICIO_JOGO proc
     
 LOOP_JOGO:
     call LER_TECLA
+    call DESENHA_HEADER
+    call DESENHA_VIDAS
+    call DESENHA_CENARIO
     jmp LOOP_JOGO
     ret
 endp
