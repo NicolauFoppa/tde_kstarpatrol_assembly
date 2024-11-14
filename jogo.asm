@@ -21,17 +21,30 @@
     enter EQU 0Dh
 
     memoria_video equ 0A000h
+    limite_inferior equ 54752 ; 320 * (200 - 29) + 32 (200 - altura do desenho + altura do terreno)
+    limite_superior equ 6432 ; 320 * 20 + 32
     
     ;posicoes naves
     
-    vidas dw 16
-          dw 28
-          dw 30
-          dw 42
-          dw 54
-          dw 66
-          dw 78
-          dw 90
+    nave_principal dw 32032
+    
+    vidas dw 1
+          dw 1
+          dw 1
+          dw 1
+          dw 1
+          dw 1
+          dw 1
+          dw 1
+                    
+    cor_vida db 4h
+             db 5h
+             db 7h
+             db 0Eh
+             db 0Dh
+             db 0Ch
+             db 0Ah
+             db 9h
 
 ; desenhos
     
@@ -654,20 +667,45 @@ DESENHA_VIDAS proc
     push DX
     push SI
     push AX
-    
-    xor SI, SI          ; SI = 0, começando pelo primeiro elemento
+              
     mov CX, 8           ; 8 elementos no array "vidas"
+    xor AX, AX
+    mov AX, 20 ; posicao (linha) da primeira nave 
 
 loop_vidas:
-    xor BX, BX
-    mov CX, 0 ; coluna
-    mov DX, [vidas + SI] ; Carrega o valor atual em DX
-    mov BL, vermelho
-    mov SI, offset nave_aliada
-    call DESENHA_ELEMENTO_15X9
-    add SI, 2            ; Incrementa SI para o próximo elemento
-    loop loop_vidas
+    xor SI, SI          ; Zera SI, necessário para a função de desenho
+    xor BX, BX          ; Zera BX, que será usado para a cor
+    mov DI, CX          
+    dec DI
+              
+    ; Carrega o valor da linha para cada nave em "vidas" no índice DI
+    mov DX, AX      ; DX recebe a linha onde a nave será desenhada
     
+    ; caso a nave ja river sido destruida, nao desenha a mesma
+    cmp [vidas + DI], 0
+    je PULA_LOOP_VIDAS
+    
+    ; Carrega a cor correspondente da nave em "cor_vida" no índice DI
+    mov BL, [cor_vida + DI]  ; BL recebe a cor da nave
+
+    push CX
+    ; A coluna sempre é 0, então podemos simplesmente usar esse valor
+    mov CX, 0          ; Coluna 0 para todas as naves
+
+    ; A posição de desenho será calculada com base em "CX" (coluna) e "DX" (linha)
+    mov SI, offset nave_aliada   ; SI aponta para o desenho da nave
+    call DESENHA_ELEMENTO_15X9   ; Chama a função para desenhar a nave
+    pop CX
+    
+PULA_LOOP_VIDAS:
+    add AX, 21
+    loop loop_vidas     ; Decrementa CX e repete até 0
+
+    pop AX
+    pop SI
+    pop DX
+    pop CX
+    pop BX
     ret
 endp
 
@@ -802,15 +840,11 @@ INICIO:
     
     call INICIA_VIDEO
     mov [tela_atual], 0
+    ;call DESENHA_VIDAS
     call DESENHA_MENU
     
     mov AH, 4Ch
     int 21h
     
-    ;espera:
-    ;   call wait_frame         ;espera 300 frames antes de encerrar o jogo
-    ;  inc CX
-    ;  cmp CX, 300
-    ;  jb espera
         
 end INICIO
