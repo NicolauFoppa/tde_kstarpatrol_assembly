@@ -33,7 +33,7 @@
     vidas db 1
           db 1
           db 1
-          db 0
+          db 1
           db 1
           db 1
           db 1
@@ -139,10 +139,13 @@
 
     qtd_px_mov_naves dw 5
     
-    frame_time dw 16667 ; tempo entre alteracoes dos elementos
+    frame_time equ 16667 ; tempo entre alteracoes dos elementos
     sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
-    sector_time dw 0393h, 8700h ; tempo de jogo de cada setor (60s em micro seg)
-
+    sector_temp_total equ 11
+    
+    contador_frames db 0
+    cronometro_sector db ?
+    
 .code 
 
 pinta_pixel proc
@@ -328,6 +331,7 @@ endp
 ESCREVE_STRING proc
     push ES
     push BX
+    push BX
     
     mov BX, DS
     mov ES, BX
@@ -339,7 +343,62 @@ ESCREVE_STRING proc
     
     int 10h
     
+    pop BX
     pop ES
+    ret
+endp
+
+ESC_CHAR proc
+    push AX
+    mov AH, 02H
+    int 21H
+    pop AX
+    ret    
+             
+endp
+
+; escreve na tela o valor armazenado em AX
+ESC_UINT16 proc
+    push AX
+    push BX
+    push CX
+    push DX
+    
+    mov BX, 10    
+    xor CX, CX
+    
+    cmp AX, 10
+    jnl LACO_DIGITO
+    mov DL, '0'
+    call ESC_CHAR
+    
+  LACO_DIGITO:    
+    xor DX, DX         
+    div BX
+    
+    push DX
+       
+    inc CX
+    
+    cmp AX, 0   
+        
+    jnz LACO_DIGITO
+                          
+     
+  LACO_ESCRITA:                    
+    pop DX
+    add DL, '0'
+    call ESC_CHAR
+    dec CX
+    cmp CX, 0
+    jnz LACO_ESCRITA
+          
+          
+    pop DX
+    pop CX
+    pop BX
+    pop AX
+       
     ret
 endp
 
@@ -664,6 +723,10 @@ DESENHA_HEADER proc
     mov BL, branco
     call ESCREVE_STRING
 
+    mov AX, word ptr cronometro_sector
+
+    call ESC_UINT16
+    
     ret
 endp
 
@@ -733,14 +796,32 @@ ret
     ret
 endp
 
+; testar e mostrar se venceu ou perdeu. 
+; deixar o usuario escolher se joga de novo ou sai
+VENCEU_PERDEU proc
+
+    call LIMPAR_TELA
+
+    mov AH, 4Ch
+    int 21h
+    ret
+endp
+
 ; setar qual tela esta (1,2,3)
 MOSTRA_SETOR proc
+
+    cmp tela_atual, 1
+    je PRINTA_SET_1
+
     cmp tela_atual, 2
     je PRINTA_SET_2
     
     cmp tela_atual, 3
     je PRINTA_SET_3
     
+    call VENCEU_PERDEU
+
+PRINTA_SET_1: 
     mov BP, OFFSET setor_1
     mov BL, ciano_claro
     jmp PRINTA_E_SAI
@@ -870,8 +951,13 @@ FIM_MOVE_NAVE_CIMA:
 endp
 
 INICIO_JOGO proc
-    mov [tela_atual], 1
+    mov [tela_atual], 0
+    
+PROXIMO_SETOR:
+    inc [tela_atual]
     call MOSTRA_SETOR
+    mov [cronometro_sector], sector_temp_total
+    mov [contador_frames], 0
     
     mov CX, 47 ; coluna
     mov DX, 95 ; linha
@@ -892,19 +978,35 @@ LOOP_JOGO:
     je APERTOU_CIMA
     cmp AH, espaco
     je APERTOU_ESPACO
-    jmp LOOP_JOGO
+    jmp REPE_JOGO
 
 APERTOU_BAIXO:
     call MOVE_NAVE_BAIXO
-    jmp LOOP_JOGO
+    jmp REPE_JOGO
 
 APERTOU_CIMA:
     call MOVE_NAVE_CIMA
-    jmp LOOP_JOGO
+    jmp REPE_JOGO
 
 APERTOU_ESPACO:
     ;call ATIRAR
     
+    
+REPE_JOGO:
+    xor cx, cx
+    mov dx, frame_time
+    call SLEEP
+    
+    inc [contador_frames]
+    cmp [contador_frames], 40
+    jne JMP_JOGO
+    
+    mov [contador_frames], 0
+    dec [cronometro_sector]
+    cmp [cronometro_sector], 0
+    je PROXIMO_SETOR
+    
+JMP_JOGO: 
     jmp LOOP_JOGO
     ret
 endp
