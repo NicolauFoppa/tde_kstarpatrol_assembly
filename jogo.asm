@@ -92,6 +92,16 @@
                  db 0,0,0Fh,0Fh,0,0,0,0,0,0,0,0,0,0,0
                  db 0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0
                  
+      tiro db 0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0
+           db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+           db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+           db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+           db 0,0,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh
+           db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+           db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+           db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+           db 0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0
+                 
      tam_nave EQU $ - nave_aliada
                  
      nave_inimiga db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
@@ -143,6 +153,8 @@
     sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
     sector_temp_total equ 11
     
+    tiro_exist dw 0 ; caso seja 0 o nao existe nenhum tiro e pode atirar
+    
     contador_frames db 0
     cronometro_sector db ?
     
@@ -171,119 +183,56 @@ pinta_pixel proc
     ret
 endp
 
+; parametros para mover a nave
+;    mov SI, [pos_inicial_naves_menu] ; passa para SI a posicao inicial da nave
+;    mov DI,SI
+;    inc DI ; DI recebe a posicao incrementada para realizar a movimentacao
+;    xor DX, DX ; zera DX (movimentacao para a direita)
+;    call MOVE_HORIZONTAL ; rotina de movimentação
 
-
-MOVE_HORIZONTAL_ESQUERDA proc
-    push ax
-    push bx ;posicao na memoria do elemento
-    push cx
-    push si
-    push di
+MOVE_HORIZONTAL proc
+    push AX
+    push CX
+    push DS ; guarda registradores
     
-    ;push bx
+    mov AX, ES 
+    mov DS, AX ; move inicio da memoria de video para DS
+    mov CX, 9
     
-    ;; cmp bx, limite_esquerda nao usar (sera 0 e 320)
-    ;;jbe FIM_MOVE_HORIZONTAL
-    mov ax, memoria_video
-    mov ds, ax
+    cmp DX, 0   ; verifica se a movimentacao eh para a esquerda (DX==0) ou para a direita (DX==1)
+    jne ESQUERDA
+    std ; DF=1 (movimentacao sera da esquerda para a diretia)
     
-    mov dx, 10       ; N?mero de linhas para mover
-    mov si, bx       
-    mov di, bx       
-    sub di, 2    ; Move x pixeis horizontalmente
-    ;push di          ; Empilha poder salvar a nova posi??o da nave
-    
-MOVE_HORIZONTAL_ESQUERDA_LOOP:
-    mov cx, 15       ; Largura
-    rep movsb        
-    dec dx           
-    add di, 305      ; Pula para a linha anterior
-    add si, 305     
-    cmp dx, 0        
-    jnz MOVE_HORIZONTAL_ESQUERDA_LOOP
-      
-    
-    ; Limpar a area deixada para tras com pixel preto
-    mov dx, 10       ; numero de linhas
-    mov di, bx       ; Posicao inicial do desenho original
-    add di, 13       ; (15 - pixeis movendo)
-    xor al, al      ; pixel preto
+    MOVE_DIREITA:   ; laco que movimenta para a direita
+    push CX         ; guarda CX
+    mov CX, 16      ; ira repetir 16 vezes a instrucao seguinte (a nave tem 15 pixels de largura, e precisa ainda mover o pixel preto)
+    rep movsb       ; realiza a movimentacao (copia [DS:SI] para [ES:DI])
+    add SI, 336     
+    add DI, 336     ; vao para a proxima linha
+    pop CX          ; recupera CX (para descontar do loop MOVE_DIREITA)
+    loop MOVE_DIREITA
+    jmp CONTINUA_MOVE_HORIZONTAL    
+   
+    ESQUERDA: ; mesma funcionalidade do segmento anterior, porem, movimentacao eh da direita para a esquerda
     cld
-LIMPAR_DIREITA:
-    mov cx, 2        ; Largura para apagar
-    rep stosb        ; Preenche com o que esta em AL
-    dec dx           
-    add di, 318      ; (320 - pixeis movendo)  
-    cmp dx, 0        
-    jnz LIMPAR_DIREITA
+    MOVE_ESQUERDA:
+    push CX
+    mov CX, 16
+    rep movsb
+    add SI, 304
+    add DI, 304
+    pop CX
+    loop MOVE_ESQUERDA
     
-    ;pop di           ; Desempilha a nova posi??o da nave
-    ;mov bx, di       ; Atualiza BX com a nova posi??o da nave
+    CONTINUA_MOVE_HORIZONTAL:
     
-    mov ax, @data
-    mov ds, ax
-    
-    ;mov posicao_nave, bx
-
-FIM_MOVE_HORIZONTAL_ESQUERDA:
-    pop di
-    pop si
-    pop cx
-    pop bx
-    pop ax
+    pop DS
+    pop CX
+    pop AX ; recupera registradores
     ret
 endp
 
-MOVE_HORIZONTAL_DIREITA proc
-    push ax
-    push bx ; Posi??o na mem?ria do elemento
-    push cx
-    push si
-    push di
-    
-    mov ax, memoria_video
-    mov ds, ax
-    
-    mov dx, 10       ; N?mero de linhas para mover
-    mov si, bx       
-    mov di, bx       
-    add di, 2        ; Move x pixels para a direita
-    std              ; Define a dire??o decrescente para o movsb
-MOVE_HORIZONTAL_DIREITA_LOOP:
-    mov cx, 15       ; Largura do desenho
-    rep movsb        
-    dec dx           
-    add di, 335      ; Pula para a pr?xima linha na tela
-    add si, 335    
-    cmp dx, 0        
-    jnz MOVE_HORIZONTAL_DIREITA_LOOP
 
-    ; Limpar a ?rea deixada para tr?s com pixels da cor de fundo
-    mov dx, 10       ; N?mero de linhas para limpar
-    mov di, bx       ; Posi??o inicial do desenho original
-    sub di, 13       ; (15 - pixeis movendo)
-    xor al, al       ; pixel preto
-    std              ; Restaura para dire??o desc
-LIMPAR_ESQUERDA:
-    mov cx, 2        ; Largura para apagar
-    rep stosb        ; Preenche a ?rea com a cor de fundo
-    dec dx           
-    add di, 322      ; Pula para a pr?xima linha na tela (320 + pixeis movendo)
-    cmp dx, 0         
-    jnz LIMPAR_ESQUERDA
-
-    ; Restaura o segmento de dados original
-    mov ax, @data
-    mov ds, ax
-    
-FIM_MOVE_HORIZONTAL_DIREITA:
-    pop di
-    pop si
-    pop cx
-    pop bx
-    pop ax
-    ret
-endp
 encerra proc
     mov ah, 1h      ;muda configuaracao e
     int 16h         ;verifica se ha tecla no buffer quando entra
@@ -587,7 +536,11 @@ MOVE_NAVES_MENU proc
     je MOVER_NAVE_ALIADA
     
 MOVER_NAVE_INIMIGA:
-    call MOVE_HORIZONTAL_ESQUERDA
+    mov SI, BX
+    mov DI, BX
+    sub DI, 2
+    mov DX, 1
+    call MOVE_HORIZONTAL
     sub bx, 2
     xor cx, cx
     mov dx, frame_time
@@ -595,7 +548,11 @@ MOVER_NAVE_INIMIGA:
     jmp CHECA_NAVE
     
 MOVER_NAVE_ALIADA:
-    call MOVE_HORIZONTAL_DIREITA
+    mov SI, BX
+    mov DI, BX
+    add DI, 2
+    xor DX, DX
+    call MOVE_HORIZONTAL
     add bx, 2
     xor cx, cx
     mov dx, frame_time
@@ -618,18 +575,18 @@ CMP_NAVE_ALIADA:
 DESENHA_NAVE_ALIADA:
     xor BX, BX
     mov CX, 2 ; coluna
-    mov DX, 110 ; linha
+    mov DX, 109 ; linha
     mov BL, branco
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
     mov byte ptr [nave_atual], 0
-    mov bx, 34896 ; posicao do desenho na memoria de video aliada
+    mov bx, 34895 ; posicao do desenho na memoria de video aliada
     jmp SAIR_MOVE_NAVES_MENU
     
 DESENHA_NAVE_INIMIGA:
     xor BX, BX
     mov CX, 304 ; coluna
-    mov DX, 110 ; linha
+    mov DX, 109 ; linha
     mov BL, -1
     mov SI, offset nave_inimiga
     call DESENHA_ELEMENTO_15X9
@@ -652,12 +609,12 @@ DESENHA_MENU proc
     ;jmp DESENHA_NAVE_ALIADA
     
     mov CX, 2 ; coluna
-    mov DX, 110 ; linha
+    mov DX, 109 ; linha
     mov BL, branco
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
     mov byte ptr [nave_atual], 0
-    mov BX, 34896 ; posicao do desenho na memoria de video aliada
+    mov BX, 34895 ; posicao do desenho na memoria de video aliada
 
 MENU:
     call MOVE_NAVES_MENU
@@ -777,24 +734,62 @@ PULA_LOOP_VIDAS:
 endp
 
 DESENHA_CENARIO proc
-    mov ax, memoria_video       ; Segmento de mem?ria de v?deo (modo gr?fico 13h)
-    mov es, ax           ; Aponta ES para o segmento de v?deo
 
-    mov si, offset cenario ; Aponta SI para o in?cio do vetor cenario
-    mov di, 57600            ; Offset na mem?ria de v?deo (in?cio de A000:0000)
+    mov ax, memoria_video       ; Segmento de memória de vídeo (modo gráfico 13h)
+    mov es, ax                  ; Aponta ES para o segmento de vídeo
 
-    mov cx, 6400         ; 9600 pixels (correspondente ao tamanho total de seu vetor, supondo que s?o pixels)
+    mov si, offset cenario      ; Aponta SI para o início do vetor cenario
 
-    draw_loop:
-        lodsb            ; Carrega o pr?ximo byte de DS:SI (vetor 'cenario') no AL
-        stosb            ; Armazena o valor de AL diretamente em ES:DI (pixel na tela)
-        loop draw_loop   ; Repetir at? escrever todos os pixels
+    cmp tela_atual, 1
+    je PRINTA_CENARIO           ; Se tela_atual == 1, imprime o cenário original
 
-ret
-    
+    cmp tela_atual, 2
+    je ALTERA_COR_CENARIO_2     ; Se tela_atual == 2, altera a cor para um valor diferente
 
+    cmp tela_atual, 3
+    je ALTERA_COR_CENARIO_3     ; Se tela_atual == 3, altera a cor para outro valor
+
+PRINTA_CENARIO:
+    mov di, 57600               ; Offset na memória de vídeo (início de A000:0000)
+    mov cx, 6400                ; Número de pixels (tamanho do vetor 'cenario')
+
+DRAW_LOOP:
+    lodsb                       ; Carrega o próximo byte de DS:SI (vetor 'cenario') no AL
+    stosb                       ; Armazena o valor de AL diretamente em ES:DI (pixel na tela)
+    loop DRAW_LOOP              ; Repete até desenhar todos os pixels
     ret
-endp
+
+ALTERA_COR_CENARIO_2:
+    mov di, 57600               ; Offset na memória de vídeo
+    mov cx, 6400                ; Número de pixels
+    mov bl, 04h                 ; Nova cor (exemplo: 04h - vermelho claro)
+
+CHANGE_COLOR_LOOP_2:
+    lodsb                       ; Carrega o próximo byte de DS:SI
+    cmp al, 06h                 ; Verifica se o pixel atual tem a cor 06h
+    jne SKIP_COLOR_CHANGE_2     ; Se não for a cor 06h, pula a alteração
+    mov al, bl                  ; Altera a cor para 04h
+SKIP_COLOR_CHANGE_2:
+    stosb                       ; Escreve o valor atualizado (ou original) em ES:DI
+    loop CHANGE_COLOR_LOOP_2
+    ret
+
+ALTERA_COR_CENARIO_3:
+    mov di, 57600               ; Offset na memória de vídeo
+    mov cx, 6400                ; Número de pixels
+    mov bl, 0Ah                 ; Nova cor (exemplo: 0Ah - verde claro)
+
+CHANGE_COLOR_LOOP_3:
+    lodsb                       ; Carrega o próximo byte de DS:SI
+    cmp al, 06h                 ; Verifica se o pixel atual tem a cor 06h
+    jne SKIP_COLOR_CHANGE_3     ; Se não for a cor 06h, pula a alteração
+    mov al, bl                  ; Altera a cor para 0Ah
+SKIP_COLOR_CHANGE_3:
+    stosb                       ; Escreve o valor atualizado (ou original) em ES:DI
+    loop CHANGE_COLOR_LOOP_3
+    ret
+
+ENDP
 
 ; testar e mostrar se venceu ou perdeu. 
 ; deixar o usuario escolher se joga de novo ou sai
