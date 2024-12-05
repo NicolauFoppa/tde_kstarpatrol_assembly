@@ -96,7 +96,7 @@
            db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
            db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
            db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-           db 0,0,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh
+           db 0,0,0,0,0,0,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh
            db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
            db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
            db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -114,28 +114,29 @@
                   db 0,0,0,0,0,0,0,0,0,9,9,0,0,0,0
                   db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
     
-    cenario db 39 dup(0H), 3 dup(06H), 26 dup(0H), 1 dup(06H), 17 dup(0H), 1 dup(06H), 188 dup(0H), 1 dup(06H), 11 dup(0H), 1 dup(06H), 8 dup(0H), 1 dup(06H), 23 dup(0H)  
-            db 21 dup(0H), 1 dup(06H), 15 dup(0H), 7 dup(06H), 23 dup(0H), 2 dup(06H), 17 dup(0H), 2 dup(06H), 24 dup(0H), 3 dup(06H), 123 dup(0H), 1 dup(06H), 6 dup(0H), 2 dup(06H), 27 dup(0H), 3 dup(06H), 10 dup(0H), 1 dup(06H), 8 dup(0H), 2 dup(06H), 22 dup(0H)  
-            db 20 dup(0H), 3 dup(06H), 11 dup(0H), 12 dup(06H), 19 dup(0H), 5 dup(06H), 10 dup(0H), 2 dup(06H), 3 dup(0H), 4 dup(06H), 20 dup(0H), 10 dup(06H), 20 dup(0H), 1 dup(06H), 2 dup(0H), 1 dup(06H), 19 dup(0H), 1 dup(06H), 73 dup(0H), 5 dup(06H), 3 dup(0H), 3 dup(06H), 20 dup(0H), 3 dup(06H), 3 dup(0H), 5 dup(06H), 8 dup(0H), 3 dup(06H), 6 dup(0H), 6 dup(06H), 19 dup(0bH)        
-            db 18 dup(0bH), 6 dup(06H), 8 dup(0H), 16 dup(06H), 17 dup(0bH), 6 dup(06H), 6 dup(0H), 17 dup(06H), 11 dup(0H), 17 dup(06H), 12 dup(0H), 11 dup(06H), 16 dup(0bH), 3 dup(06H), 67 dup(0bH), 11 dup(06H), 1 dup(0H), 9 dup(06H), 11 dup(0bH), 28 dup(06H), 2 dup(0H), 11 dup(06H), 16 dup(0bH)      
-            db 15 dup(0bH), 37 dup(06H), 10 dup(0bH), 83 dup(06H), 13 dup(0bH), 7 dup(06H), 64 dup(0bH), 24 dup(06H), 6 dup(0bH), 47 dup(06H), 14 dup(0bH)     
-            db 54 dup(06H), 6 dup(0bH), 86 dup(06H), 11 dup(0bH), 11 dup(06H), 53 dup(0bH), 34 dup(06H), 4 dup(0bH), 61 dup(06H) 
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
-            db 320 dup(06H)
+       cenario db 55 dup(0H), 23 dup(06H), 46 dup(0H), 21 dup(06H), 37 dup(0H), 21 dup(06H), 112 dup(0H), 21 dup(06H), 31 dup(0H), 21 dup(06H), 28 dup(0H), 21 dup(06H), 43 dup(0H)  
+       db 30 dup(0H), 9 dup(06H), 23 dup(0H), 15 dup(06H), 31 dup(0H), 10 dup(06H), 25 dup(0H), 10 dup(06H), 32 dup(0H), 11 dup(06H), 131 dup(0H), 9 dup(06H), 12 dup(0H), 10 dup(06H), 34 dup(0H), 10 dup(06H), 17 dup(0H), 8 dup(06H), 15 dup(0H), 9 dup(06H), 29 dup(0H)  
+       db 27 dup(0H), 9 dup(06H), 17 dup(0H), 18 dup(06H), 25 dup(0H), 9 dup(06H), 15 dup(0H), 7 dup(06H), 8 dup(0H), 9 dup(06H), 25 dup(0H), 15 dup(06H), 25 dup(0H), 6 dup(06H),7 dup(0H), 6 dup(06H), 24 dup(0H), 6 dup(06H), 78 dup(0H), 10 dup(06H), 8 dup(0H), 8 dup(06H), 25 dup(0H), 8 dup(06H), 8 dup(0H), 10 dup(06H), 13 dup(0H), 8 dup(06H), 11 dup(0H), 11 dup(06H), 24 dup(0bH)        
+       db 26 dup(0bH), 13 dup(06H), 16 dup(0H), 23 dup(06H), 24 dup(0bH), 13 dup(06H), 13 dup(0H), 24 dup(06H), 17 dup(0H), 23 dup(06H), 19 dup(0H), 17 dup(06H), 23 dup(0bH), 10 dup(06H), 74 dup(0bH), 18 dup(06H), 8 dup(0H), 16 dup(06H), 18 dup(0bH), 35 dup(06H), 9 dup(0H), 18 dup(06H), 23 dup(0bH)      
+       db 31 dup(0bH), 52 dup(06H), 25 dup(0bH), 98 dup(06H), 28 dup(0bH), 21 dup(06H), 78 dup(0bH), 38 dup(06H), 20 dup(0bH), 61 dup(06H), 28 dup(0bH)     
+            db 73 dup(06H), 24 dup(0bH), 104 dup(06H), 29 dup(0bH), 29 dup(06H), 71 dup(0bH), 51 dup(06H), 21 dup(0bH), 78 dup(06H) 
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+
             
-                 
+    blank_space db 135 dup(0)
     btn_jogar db "JOGAR  "
     btn_sair db "SAIR  "
     nave_atual db 0 ; 0 -> nave aliada, 1 -> nave inimiga
@@ -154,9 +155,11 @@
     sector_temp_total equ 11
     
     tiro_exist dw 0 ; caso seja 0 o nao existe nenhum tiro e pode atirar
+    tiro_desl dw 0 ; controla o deslocamento do tiro
     
     contador_frames db 0
     cronometro_sector db ?
+    desloc_cen dw 0
     
 .code 
 
@@ -188,7 +191,7 @@ endp
 ;    mov DI,SI
 ;    inc DI ; DI recebe a posicao incrementada para realizar a movimentacao
 ;    xor DX, DX ; zera DX (movimentacao para a direita)
-;    call MOVE_HORIZONTAL ; rotina de movimentação
+;    call MOVE_HORIZONTAL ; rotina de movimenta??o
 
 MOVE_HORIZONTAL proc
     push AX
@@ -230,6 +233,11 @@ MOVE_HORIZONTAL proc
     pop CX
     pop AX ; recupera registradores
     ret
+endp
+
+DESENHA_ELEMENTO_15X9_TOTAL proc
+
+ret
 endp
 
 
@@ -734,61 +742,88 @@ PULA_LOOP_VIDAS:
 endp
 
 DESENHA_CENARIO proc
+    mov ax, memoria_video       ; Segmento de mem?ria de v?deo (modo gr?fico 13h)
+    mov es, ax                  ; Aponta ES para o segmento de v?deo
 
-    mov ax, memoria_video       ; Segmento de memória de vídeo (modo gráfico 13h)
-    mov es, ax                  ; Aponta ES para o segmento de vídeo
+    mov si, offset cenario      ; Aponta SI para o in?cio do vetor cenario
+    add si, desloc_cen          ; Desloca o ponteiro para o valor correto do cen?rio
 
-    mov si, offset cenario      ; Aponta SI para o início do vetor cenario
+    cmp tela_atual, 1           ; Se tela_atual == 1, imprime o cen?rio original
+    je PRINTA_CENARIO
 
-    cmp tela_atual, 1
-    je PRINTA_CENARIO           ; Se tela_atual == 1, imprime o cenário original
+    cmp tela_atual, 2           ; Se tela_atual == 2, altera a cor para um valor diferente
+    je ALTERA_COR_CENARIO_2
 
-    cmp tela_atual, 2
-    je ALTERA_COR_CENARIO_2     ; Se tela_atual == 2, altera a cor para um valor diferente
-
-    cmp tela_atual, 3
-    je ALTERA_COR_CENARIO_3     ; Se tela_atual == 3, altera a cor para outro valor
+    cmp tela_atual, 3           ; Se tela_atual == 3, altera a cor para outro valor
+    je ALTERA_COR_CENARIO_3
 
 PRINTA_CENARIO:
-    mov di, 57600               ; Offset na memória de vídeo (início de A000:0000)
-    mov cx, 6400                ; Número de pixels (tamanho do vetor 'cenario')
-
+    mov di, 57920
+    mov dx, 20
+desenha_linha_ter:
+    mov cx, 320
+    rep movsb
+    
+    add si, 160
+    dec dx
+    jnz desenha_linha_ter
+    ret
+    
 DRAW_LOOP:
-    lodsb                       ; Carrega o próximo byte de DS:SI (vetor 'cenario') no AL
+    lodsb                       ; Carrega o pr?ximo byte de DS:SI (vetor 'cenario') no AL
     stosb                       ; Armazena o valor de AL diretamente em ES:DI (pixel na tela)
-    loop DRAW_LOOP              ; Repete até desenhar todos os pixels
+    loop DRAW_LOOP              ; Repete at? desenhar todos os pixels
     ret
 
 ALTERA_COR_CENARIO_2:
-    mov di, 57600               ; Offset na memória de vídeo
-    mov cx, 6400                ; Número de pixels
+    mov di, 57920               ; Offset na mem?ria de v?deo
+    mov cx, 6400                ; N?mero de pixels
     mov bl, 04h                 ; Nova cor (exemplo: 04h - vermelho claro)
 
 CHANGE_COLOR_LOOP_2:
-    lodsb                       ; Carrega o próximo byte de DS:SI
-    cmp al, 06h                 ; Verifica se o pixel atual tem a cor 06h
-    jne SKIP_COLOR_CHANGE_2     ; Se não for a cor 06h, pula a alteração
-    mov al, bl                  ; Altera a cor para 04h
+    lodsb                       ; Carrega o pr?ximo byte de DS:SI
+    cmp al, 06h                 ; Verifica se o pixel atual tem a cor 06h (por exemplo, cor do cen?rio)
+    jne SKIP_COLOR_CHANGE_2     ; Se n?o for a cor 06h, pula a altera??o
+    mov al, bl                  ; Altera a cor para 04h (vermelho claro)
 SKIP_COLOR_CHANGE_2:
     stosb                       ; Escreve o valor atualizado (ou original) em ES:DI
-    loop CHANGE_COLOR_LOOP_2
+    loop CHANGE_COLOR_LOOP_2    ; Repete o loop at? processar todos os pixels
     ret
 
 ALTERA_COR_CENARIO_3:
-    mov di, 57600               ; Offset na memória de vídeo
-    mov cx, 6400                ; Número de pixels
+    mov di, 57920               ; Offset na mem?ria de v?deo
+    mov cx, 6400                ; N?mero de pixels
     mov bl, 0Ah                 ; Nova cor (exemplo: 0Ah - verde claro)
 
 CHANGE_COLOR_LOOP_3:
-    lodsb                       ; Carrega o próximo byte de DS:SI
+    lodsb                       ; Carrega o pr?ximo byte de DS:SI
     cmp al, 06h                 ; Verifica se o pixel atual tem a cor 06h
-    jne SKIP_COLOR_CHANGE_3     ; Se não for a cor 06h, pula a alteração
-    mov al, bl                  ; Altera a cor para 0Ah
+    jne SKIP_COLOR_CHANGE_3     ; Se n?o for a cor 06h, pula a altera??o
+    mov al, bl                  ; Altera a cor para 0Ah (verde claro)
 SKIP_COLOR_CHANGE_3:
     stosb                       ; Escreve o valor atualizado (ou original) em ES:DI
-    loop CHANGE_COLOR_LOOP_3
+    loop CHANGE_COLOR_LOOP_3    ; Repete o loop at? processar todos os pixels
     ret
 
+ENDP
+
+MOVIMENTA_CENARIO proc
+    push AX
+    push SI
+
+    xor AX, AX
+    add desloc_cen, 3           ; Incrementa o deslocamento em 2 (movimento horizontal)
+
+    cmp desloc_cen, 320         ; Se desloc_cen >= 320, reseta o cenário
+    jl continua_movimento       ; Se desloc_cen < 320, continua o movimento
+
+    mov desloc_cen, 0           ; Reseta o deslocamento ao ultrapassar o limite
+
+continua_movimento:
+    call DESENHA_CENARIO        ; Chama a função para desenhar o cenário atualizado
+    pop si
+    pop ax
+    ret
 ENDP
 
 ; testar e mostrar se venceu ou perdeu. 
@@ -847,6 +882,21 @@ PRINTA_E_SAI:
     call LIMPAR_TELA
     ret
 endp
+
+     apaga_tiro proc
+            push ax
+            push si
+
+            mov BX, tiro_exist
+
+            mov DX, offset blank_space
+            mov BX, tiro_exist
+            call DESENHA_TIRO
+
+            pop si
+            pop ax
+        ret
+        endp 
 
 MOVE_NAVE_BAIXO proc
     push ax
@@ -944,6 +994,120 @@ FIM_MOVE_NAVE_CIMA:
     pop ax
     ret
 endp
+ATIRAR proc
+    push AX
+    push SI
+    
+    mov BX, tiro_exist         ; A posi??o do tiro ser? armazenada em BX
+    cmp BX, 0                  ; Verifica se o tiro deve ser disparado
+    jne retorna                 ; Se al == 0, n?o faz nada
+
+    mov AX, nave_principal     ; Carrega a posi??o da nave
+    add AX, 15                 ; Ajusta para a posi??o de disparo (acima da nave)
+    mov tiro_exist, AX
+    mov BX, tiro_exist         ; Armazena a posi??o do tiro
+    mov DX, offset tiro
+    
+    ; Defina a posi??o inicial do tiro no gr?fico (BX ? a posi??o na tela)
+    ; Aqui voc? pode ajustar a posi??o horizontal (ex: nave no meio da tela)
+  
+
+    ; Agora chamamos DESENHA_TIRO para desenhar o tiro na tela
+    call DESENHA_TIRO          ; Desenha o tiro
+
+retorna:
+    pop SI
+    pop AX
+    ret
+endp
+
+DESENHA_TIRO proc
+    push ax
+    push bx
+    push cx
+    push dx
+    push di
+    push es
+    push ds
+    
+    ; Carrega o segmento de dados
+    mov ax, @data
+    mov ds, ax
+
+    ; Carrega o segmento de mem?ria de v?deo (modo gr?fico 320x200)
+    mov ax, 0A000h
+    mov es, ax
+
+    ; BX cont?m a posi??o do tiro
+    mov di, BX               ; DI = Posi??o na tela (mem?ria de v?deo)
+
+    ; SI cont?m o endere?o da sprite do tiro
+    mov si, DX       ; SI aponta para a sprite do tiro (vetor de 15x9 pixels)
+
+    ; N?mero de linhas da sprite (altura da sprite)
+    mov dx, 9                 ; A sprite tem 9 linhas
+
+desenha_linha:
+    ; Define quantos bytes mover por linha (15 bytes por linha)
+    mov cx, 15
+
+    ; Copiar 15 bytes da sprite para a mem?ria de v?deo
+    rep movsb
+
+    ; Ajustar o ponteiro de destino para a pr?xima linha (avan?a 320 bytes)
+    ; Isso ? feito somando 320 - 15 bytes (para corrigir a largura da tela)
+    add di, 320 - 15
+
+    ; Diminuir o contador de linhas e repetir
+    dec dx
+    jnz desenha_linha
+
+    ; Restaurar DS original
+    pop ds  
+    pop es
+    pop di
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    ret
+endp
+
+   MOVIMENTA_TIRO proc
+            push ax 
+            xor ax,ax
+            mov ax, tiro_exist
+            cmp ax, 0
+            je semTiro
+
+                xor bx,bx
+                call apaga_tiro
+                xor ax,ax
+                mov ax, tiro_desl
+                cmp ax, 240
+                jge parede1          
+                xor ax,ax
+                mov ax, tiro_exist
+                add ax, 8
+                mov tiro_exist, ax 
+                mov DX, offset tiro
+                mov BX, tiro_exist
+                call DESENHA_TIRO
+                xor ax,ax
+                mov ax, tiro_desl
+                add ax, 8
+                mov tiro_desl, ax        
+            
+            jmp semTiro
+            
+            parede1:
+            mov tiro_exist, 0
+                mov tiro_desl, 0
+
+            semTiro:
+            pop ax
+        ret
+        endp
 
 INICIO_JOGO proc
     mov [tela_atual], 0
@@ -981,10 +1145,12 @@ APERTOU_BAIXO:
 
 APERTOU_CIMA:
     call MOVE_NAVE_CIMA
+    call ATIRAR
     jmp REPE_JOGO
 
 APERTOU_ESPACO:
-    ;call ATIRAR
+    call ATIRAR
+    jmp REPE_JOGO
     
     
 REPE_JOGO:
@@ -996,6 +1162,8 @@ REPE_JOGO:
     cmp [contador_frames], 40
     jne JMP_JOGO
     
+    call MOVIMENTA_TIRO
+    call MOVIMENTA_CENARIO
     mov [contador_frames], 0
     dec [cronometro_sector]
     cmp [cronometro_sector], 0
@@ -1083,3 +1251,5 @@ INICIO:
     
         
 end INICIO
+
+
