@@ -19,7 +19,7 @@
     arrow_down EQU 50h
     arrow_up EQU 48h
     enter EQU 0Dh
-    espaco EQU 32h
+    espaco EQU 20h
 
     memoria_video equ 0A000h
     limite_inferior equ 48640 ; 
@@ -115,10 +115,10 @@
                   db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
     
        cenario db 55 dup(0H), 23 dup(06H), 46 dup(0H), 21 dup(06H), 37 dup(0H), 21 dup(06H), 112 dup(0H), 21 dup(06H), 31 dup(0H), 21 dup(06H), 28 dup(0H), 21 dup(06H), 43 dup(0H)  
-       db 30 dup(0H), 9 dup(06H), 23 dup(0H), 15 dup(06H), 31 dup(0H), 10 dup(06H), 25 dup(0H), 10 dup(06H), 32 dup(0H), 11 dup(06H), 131 dup(0H), 9 dup(06H), 12 dup(0H), 10 dup(06H), 34 dup(0H), 10 dup(06H), 17 dup(0H), 8 dup(06H), 15 dup(0H), 9 dup(06H), 29 dup(0H)  
-       db 27 dup(0H), 9 dup(06H), 17 dup(0H), 18 dup(06H), 25 dup(0H), 9 dup(06H), 15 dup(0H), 7 dup(06H), 8 dup(0H), 9 dup(06H), 25 dup(0H), 15 dup(06H), 25 dup(0H), 6 dup(06H),7 dup(0H), 6 dup(06H), 24 dup(0H), 6 dup(06H), 78 dup(0H), 10 dup(06H), 8 dup(0H), 8 dup(06H), 25 dup(0H), 8 dup(06H), 8 dup(0H), 10 dup(06H), 13 dup(0H), 8 dup(06H), 11 dup(0H), 11 dup(06H), 24 dup(0bH)        
-       db 26 dup(0bH), 13 dup(06H), 16 dup(0H), 23 dup(06H), 24 dup(0bH), 13 dup(06H), 13 dup(0H), 24 dup(06H), 17 dup(0H), 23 dup(06H), 19 dup(0H), 17 dup(06H), 23 dup(0bH), 10 dup(06H), 74 dup(0bH), 18 dup(06H), 8 dup(0H), 16 dup(06H), 18 dup(0bH), 35 dup(06H), 9 dup(0H), 18 dup(06H), 23 dup(0bH)      
-       db 31 dup(0bH), 52 dup(06H), 25 dup(0bH), 98 dup(06H), 28 dup(0bH), 21 dup(06H), 78 dup(0bH), 38 dup(06H), 20 dup(0bH), 61 dup(06H), 28 dup(0bH)     
+            db 30 dup(0H), 9 dup(06H), 23 dup(0H), 15 dup(06H), 31 dup(0H), 10 dup(06H), 25 dup(0H), 10 dup(06H), 32 dup(0H), 11 dup(06H), 131 dup(0H), 9 dup(06H), 12 dup(0H), 10 dup(06H), 34 dup(0H), 10 dup(06H), 17 dup(0H), 8 dup(06H), 15 dup(0H), 9 dup(06H), 29 dup(0H)  
+            db 27 dup(0H), 9 dup(06H), 17 dup(0H), 18 dup(06H), 25 dup(0H), 9 dup(06H), 15 dup(0H), 7 dup(06H), 8 dup(0H), 9 dup(06H), 25 dup(0H), 15 dup(06H), 25 dup(0H), 6 dup(06H),7 dup(0H), 6 dup(06H), 24 dup(0H), 6 dup(06H), 78 dup(0H), 10 dup(06H), 8 dup(0H), 8 dup(06H), 25 dup(0H), 8 dup(06H), 8 dup(0H), 10 dup(06H), 13 dup(0H), 8 dup(06H), 11 dup(0H), 11 dup(06H), 24 dup(0bH)        
+            db 26 dup(0bH), 13 dup(06H), 16 dup(0H), 23 dup(06H), 24 dup(0bH), 13 dup(06H), 13 dup(0H), 24 dup(06H), 17 dup(0H), 23 dup(06H), 19 dup(0H), 17 dup(06H), 23 dup(0bH), 10 dup(06H), 74 dup(0bH), 18 dup(06H), 8 dup(0H), 16 dup(06H), 18 dup(0bH), 35 dup(06H), 9 dup(0H), 18 dup(06H), 23 dup(0bH)      
+            db 31 dup(0bH), 52 dup(06H), 25 dup(0bH), 98 dup(06H), 28 dup(0bH), 21 dup(06H), 78 dup(0bH), 38 dup(06H), 20 dup(0bH), 61 dup(06H), 28 dup(0bH)     
             db 73 dup(06H), 24 dup(0bH), 104 dup(06H), 29 dup(0bH), 29 dup(06H), 71 dup(0bH), 51 dup(06H), 21 dup(0bH), 78 dup(06H) 
             db 480 dup(06H)
             db 480 dup(06H)
@@ -152,7 +152,7 @@
     
     frame_time equ 16667 ; tempo entre alteracoes dos elementos
     sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
-    sector_temp_total equ 11
+    sector_temp_total equ 5
     
     tiro_exist dw 0 ; caso seja 0 o nao existe nenhum tiro e pode atirar
     tiro_desl dw 0 ; controla o deslocamento do tiro
@@ -160,6 +160,13 @@
     contador_frames db 0
     cronometro_sector db ?
     desloc_cen dw 0
+    
+    pont_total dw 0
+    pont_sector dw 0
+    inimigas_vivas_sector db 0 ; usado para controlar a qtd de naves simultaneas em cada setor
+    inimigas_escaparam_sector db 0 ; usado para calcular reducao de pontuacao ao passar de setor
+    
+    venceu db 0 ; quando todas vidas acabarem, perdeu
     
 .code 
 
@@ -657,6 +664,7 @@ APERTA_BOTAO:
     call INICIO_JOGO
     
 FIM_DESENHA_MENU:
+    call encerra
     ret
 endp
 
@@ -680,6 +688,10 @@ DESENHA_HEADER proc
     mov CX, 7
     mov BL, branco
     call ESCREVE_STRING
+    
+    mov AX, word ptr pont_sector
+
+    call ESC_UINT16
     
     mov BP, OFFSET tempo
     mov DH, 0
@@ -814,13 +826,13 @@ MOVIMENTA_CENARIO proc
     xor AX, AX
     add desloc_cen, 3           ; Incrementa o deslocamento em 2 (movimento horizontal)
 
-    cmp desloc_cen, 320         ; Se desloc_cen >= 320, reseta o cenário
+    cmp desloc_cen, 320         ; Se desloc_cen >= 320, reseta o cen?rio
     jl continua_movimento       ; Se desloc_cen < 320, continua o movimento
 
     mov desloc_cen, 0           ; Reseta o deslocamento ao ultrapassar o limite
 
 continua_movimento:
-    call DESENHA_CENARIO        ; Chama a função para desenhar o cenário atualizado
+    call DESENHA_CENARIO        ; Chama a fun??o para desenhar o cen?rio atualizado
     pop si
     pop ax
     ret
@@ -831,14 +843,69 @@ ENDP
 VENCEU_PERDEU proc
 
     call LIMPAR_TELA
-
-    mov AH, 4Ch
-    int 21h
+    
+    cmp [venceu], 1
+    jne GAME_OVER
+    
+    mov AX, [pont_total]
+    call ESC_UINT16
+    
+    ; venceu
+    
+    jmp ESPERA_TECLA
+    
+GAME_OVER:
+    
+ESPERA_TECLA:
+    
+    mov AH, 0
+    int 16h
+    
+    call DESENHA_MENU
+    
     ret
+endp
+
+;recebe em AX o valor do bonus
+;recebe em DX o valor da penalidade por nave escapar
+CALCULA_BONUS_SETOR proc
+
+    cmp AX, 0
+    je CALC_PENALIDADE
+
+    mov CX, 8 ; qtd de vidas totais
+
+loop_bonus_setor:
+    mov DI, CX          
+    dec DI
+             
+    mov BL, [vidas + DI]
+    cmp BL, 0
+    je PULA_LOOP_BONUS
+    
+    add [pont_total], AX
+    
+PULA_LOOP_BONUS:
+    loop loop_bonus_setor
+    
+CALC_PENALIDADE:
+    mov AX, word ptr [inimigas_escaparam_sector]
+    mul DX
+    sub [pont_total], AX
+    
+    ; soma da pontuacao do setor na pont total
+    mov CX, [pont_sector]
+    add [pont_total], CX
+    
+    ret
+
 endp
 
 ; setar qual tela esta (1,2,3)
 MOSTRA_SETOR proc
+
+    mov [tiro_exist], 0
+    mov [tiro_desl], 0
 
     cmp tela_atual, 1
     je PRINTA_SET_1
@@ -849,6 +916,11 @@ MOSTRA_SETOR proc
     cmp tela_atual, 3
     je PRINTA_SET_3
     
+    xor AX, AX
+    mov DX, 30
+    call CALCULA_BONUS_SETOR
+    
+    mov [venceu], 1
     call VENCEU_PERDEU
 
 PRINTA_SET_1: 
@@ -857,11 +929,18 @@ PRINTA_SET_1:
     jmp PRINTA_E_SAI
     
 PRINTA_SET_2:
+    mov AX, 1000
+    mov DX, 10
+    call CALCULA_BONUS_SETOR
+    
     mov BP, OFFSET setor_2
     mov BL, azul_claro
     jmp PRINTA_E_SAI
     
 PRINTA_SET_3:
+    mov AX, 2000
+    mov DX, 20
+    call CALCULA_BONUS_SETOR
     mov BP, OFFSET setor_3
     mov BL, magenta_claro
     
@@ -1111,12 +1190,14 @@ endp
 
 INICIO_JOGO proc
     mov [tela_atual], 0
+    mov [contador_frames], 0
+    mov [pont_total], 0
     
 PROXIMO_SETOR:
     inc [tela_atual]
     call MOSTRA_SETOR
+    mov [pont_sector], 0
     mov [cronometro_sector], sector_temp_total
-    mov [contador_frames], 0
     
     mov CX, 47 ; coluna
     mov DX, 95 ; linha
@@ -1135,7 +1216,7 @@ LOOP_JOGO:
     je APERTOU_BAIXO
     cmp AH, arrow_up
     je APERTOU_CIMA
-    cmp AH, espaco
+    cmp AL, espaco
     je APERTOU_ESPACO
     jmp REPE_JOGO
 
@@ -1145,13 +1226,10 @@ APERTOU_BAIXO:
 
 APERTOU_CIMA:
     call MOVE_NAVE_CIMA
-    call ATIRAR
     jmp REPE_JOGO
 
 APERTOU_ESPACO:
     call ATIRAR
-    jmp REPE_JOGO
-    
     
 REPE_JOGO:
     xor cx, cx
@@ -1159,19 +1237,48 @@ REPE_JOGO:
     call SLEEP
     
     inc [contador_frames]
+    call MOVE_ELEMENTOS
     cmp [contador_frames], 40
     jne JMP_JOGO
     
-    call MOVIMENTA_TIRO
-    call MOVIMENTA_CENARIO
     mov [contador_frames], 0
     dec [cronometro_sector]
     cmp [cronometro_sector], 0
     je PROXIMO_SETOR
     
+    call MOVE_ELEMENTOS
+    
 JMP_JOGO: 
+    
     jmp LOOP_JOGO
     ret
+endp
+
+MOVE_ELEMENTOS proc
+    push ax
+    push dx
+    push cx
+
+    mov ax, word ptr [contador_frames] ; Carrega contador_frames em AX
+    xor dx, dx                 ; Zera DX para evitar resto sujo
+    mov cx, 10                ; Divisor é 10
+    div cx                    ; AX / CX; Resto em DX
+    cmp dx, 0                 ; Verifica se o resto é 0
+    jne SAIR_MOVE_ELEMENTOS
+
+    
+    call MOVIMENTA_TIRO
+    ; call MOVIMENTA_CENARIO
+
+    
+SAIR_MOVE_ELEMENTOS:
+
+    pop cx
+    pop dx
+    pop ax
+
+    ret
+
 endp
 
 
@@ -1251,5 +1358,3 @@ INICIO:
     
         
 end INICIO
-
-
