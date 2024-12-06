@@ -81,6 +81,24 @@
            db " ___/ / /___  / / / /_/ / _, _/  ___/ / "
            db "/____/_____/ /_/  \____/_/ |_|  /____/  "
            db "                                        "
+           
+   vencedor db " __   _____ _  _  __ ___ ___  ___ ___ _ "
+            db " \ \ / / __| \| |/ _| __|   \/ _ | _ \ |"
+            db "  \ V /| _||    | (_| _|| |)  (_)|   /_|"
+            db "   \_/ |___|_|\_|\__|___|___/\___|_|_(_)"
+            db "                                        "
+         
+         
+  game_over db "          ___   _   __  __ ___          "
+            db "         / __| /_\ |  \/  | __|         "
+            db "        | (_ |/ _ \| |\/| | _|          "
+            db "         \___/_/ \_\_|__|_|___|         "
+            db "           _____   _________            "
+            db "          / _ \ \ / / __| _ \           "
+            db "         | (_) \ V /| _||   /           "
+            db "          \___/ \_/ |___|_|_\           "
+            db "                                        " 
+
 
      nave_aliada db 0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0
                  db 0,0,0Fh,0Fh,0,0,0,0,0,0,0,0,0,0,0
@@ -143,6 +161,8 @@
     
     score db "SCORE: "
     tempo db "TEMPO: "
+    pontuacao db "PONTUACAO: "
+    pressione db "PRESSIONE QUALQUER TECLA PARA VOLTAR..."
     
     
     opc_selecionada db 0 ; utilizado no contexto do menu, 0 -> Jogar, 1 -> Sair
@@ -152,7 +172,7 @@
     
     frame_time equ 16667 ; tempo entre alteracoes dos elementos
     sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
-    sector_temp_total equ 5
+    sector_temp_total equ 2
     
     tiro_exist dw 0 ; caso seja 0 o nao existe nenhum tiro e pode atirar
     tiro_desl dw 0 ; controla o deslocamento do tiro
@@ -294,6 +314,7 @@ endp
 
 ESCREVE_STRING proc
     push ES
+    push DS
     push BX
     push BX
     
@@ -308,6 +329,7 @@ ESCREVE_STRING proc
     int 10h
     
     pop BX
+    pop DS
     pop ES
     ret
 endp
@@ -613,6 +635,8 @@ SAIR_MOVE_NAVES_MENU:
 endp
 
 DESENHA_MENU proc
+    call LIMPAR_TELA
+
     mov DH, 0
     mov DL, 0
     mov CX, 400
@@ -669,6 +693,11 @@ FIM_DESENHA_MENU:
 endp
 
 LIMPAR_TELA proc
+    push AX
+    push ES
+    push DI
+    push CX
+
     mov AX, memoria_video
     mov ES, AX
     mov DI, 0
@@ -677,6 +706,11 @@ LIMPAR_TELA proc
     mov CX, 64000
     
     rep stosb
+    
+    pop CX       
+    pop DI      
+    pop ES      
+    pop AX   
     
     ret
 endp
@@ -845,18 +879,49 @@ VENCEU_PERDEU proc
     call LIMPAR_TELA
     
     cmp [venceu], 1
-    jne GAME_OVER
+    jne GAME_OVER_
+    
+    ; venceu
+    mov BP, OFFSET vencedor
+    mov BL, verde
+                        ; Centralizar o texto
+    mov DH, 8          ; Linha inicial = 9 (meio vertical da tela para altura de 5 linhas)
+    mov DL, 0          ; Coluna inicial = 0 (texto tem 39 caracteres de largura)
+    mov CX, 200        ; N?mero de caracteres a escrever (40 x 6)
+    
+    call ESCREVE_STRING
+    
+    mov BP, OFFSET pontuacao
+    mov DH, 15
+    mov DL, 0
+    mov CX, 11
+    mov BL, branco
+    call ESCREVE_STRING
     
     mov AX, [pont_total]
     call ESC_UINT16
     
-    ; venceu
-    
     jmp ESPERA_TECLA
     
-GAME_OVER:
+GAME_OVER_:
+    
+    mov BP, OFFSET game_over
+    mov BL, vermelho
+    ; Centralizar o texto
+    mov DH, 9          ; Linha inicial = 9 (meio vertical da tela para altura de 9 linhas)
+    mov DL, 0          ; Coluna inicial = 0 (texto tem 40 caracteres de largura)
+    mov CX, 360        ; N?mero de caracteres a escrever (40 x 9)
+    
+    call ESCREVE_STRING
     
 ESPERA_TECLA:
+    
+    mov BP, OFFSET pressione
+    mov DH, 20
+    mov DL, 0
+    mov CX, 39
+    mov BL, branco
+    call ESCREVE_STRING
     
     mov AH, 0
     int 16h
@@ -867,7 +932,7 @@ ESPERA_TECLA:
 endp
 
 ;recebe em AX o valor do bonus
-;recebe em DX o valor da penalidade por nave escapar
+;recebe em BX o valor da penalidade por nave escapar
 CALCULA_BONUS_SETOR proc
 
     cmp AX, 0
@@ -890,8 +955,8 @@ PULA_LOOP_BONUS:
     
 CALC_PENALIDADE:
     mov AX, word ptr [inimigas_escaparam_sector]
-    mul DX
-    sub [pont_total], AX
+    mul BX
+    ;sub [pont_total], AX
     
     ; soma da pontuacao do setor na pont total
     mov CX, [pont_sector]
@@ -917,7 +982,7 @@ MOSTRA_SETOR proc
     je PRINTA_SET_3
     
     xor AX, AX
-    mov DX, 30
+    mov BX, 30
     call CALCULA_BONUS_SETOR
     
     mov [venceu], 1
@@ -930,7 +995,7 @@ PRINTA_SET_1:
     
 PRINTA_SET_2:
     mov AX, 1000
-    mov DX, 10
+    mov BX, 10
     call CALCULA_BONUS_SETOR
     
     mov BP, OFFSET setor_2
@@ -939,7 +1004,7 @@ PRINTA_SET_2:
     
 PRINTA_SET_3:
     mov AX, 2000
-    mov DX, 20
+    mov BX, 20
     call CALCULA_BONUS_SETOR
     mov BP, OFFSET setor_3
     mov BL, magenta_claro
@@ -1114,7 +1179,7 @@ DESENHA_TIRO proc
     mov ds, ax
 
     ; Carrega o segmento de mem?ria de v?deo (modo gr?fico 320x200)
-    mov ax, 0A000h
+    mov ax, memoria_video
     mov es, ax
 
     ; BX cont?m a posi??o do tiro
@@ -1349,8 +1414,7 @@ INICIO:
     mov DS, AX
     mov ES, AX
     
-    call INICIA_VIDEO
-    mov [tela_atual], 0  
+    call INICIA_VIDEO 
     call DESENHA_MENU
     
     mov AH, 4Ch
