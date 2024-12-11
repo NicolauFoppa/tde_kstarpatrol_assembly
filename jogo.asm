@@ -194,7 +194,7 @@
     frame_time_test equ 25 ; alterar caso alterar frame time (deve ser = quantos 'frame_time' existem em 1s)
     
     sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
-    sector_temp_total equ 30 ; tempo em segundos de cada setor
+    sector_temp_total equ 10 ; tempo em segundos de cada setor
     sector_temp_str db 2 dup (?)
     tam_sector_temp_str equ $ - sector_temp_str
     
@@ -695,7 +695,7 @@ DESENHA_NAVE_ALIADA:
     mov BL, branco
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
-    mov byte ptr [nave_atual], 0
+    mov byte ptr nave_atual, 0
     mov bx, 34895 ; posicao do desenho na memoria de video aliada
     jmp SAIR_MOVE_NAVES_MENU
     
@@ -706,7 +706,7 @@ DESENHA_NAVE_INIMIGA:
     mov BL, -1
     mov SI, offset nave_inimiga
     call DESENHA_ELEMENTO_15X9
-    mov byte ptr [nave_atual], 1
+    mov byte ptr nave_atual, 1
     mov bx, 35185 ; posicao do desenho na memoria de video inimiga
     
 SAIR_MOVE_NAVES_MENU:
@@ -717,7 +717,7 @@ SEED_CPU proc
 
     mov AH, 00h   ; interrup??o que pega o timer do sistema em CX:DX 
     int 1Ah
-    mov [random_num_seed], dx
+    mov random_num_seed, dx
 
     ret
 endp
@@ -741,7 +741,7 @@ DESENHA_MENU proc
     mov BL, branco
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
-    mov byte ptr [nave_atual], 0
+    mov byte ptr nave_atual, 0
     mov BX, 34895 ; posicao do desenho na memoria de video aliada
 
 MENU:
@@ -785,7 +785,7 @@ ZERAR_VARIAVEIS_SETOR proc
 
     push CX
     push DI
-
+    
     mov CX, naves_set3
     mov DI, offset naves_inimigas
 loop_checa_posic_zerar:  
@@ -803,6 +803,9 @@ endp
 ZERAR_VARIAVEIS_JOGO proc
     push AX
     push CX
+    
+    mov contador_frames, 0
+    mov pont_total, 0
 
     mov CX, 6
     mov DI, OFFSET pont_total_str
@@ -810,6 +813,15 @@ loop_zera_str:
     mov [DI], ' '
     inc DI
     loop loop_zera_str
+    
+    
+    mov CX, 8
+    mov DI, offset vidas
+    
+loop_volta_vidas:
+    mov [DI], 1
+    inc DI
+    loop loop_volta_vidas
 
     pop CX
     pop AX
@@ -889,14 +901,13 @@ DESENHA_VIDAS proc
     push AX
               
     mov CX, 8           ; 8 elementos no array "vidas"
+    xor DI, DI
     xor AX, AX
     mov AX, 20 ; posicao (linha) da primeira nave 
 
 loop_vidas:
     xor SI, SI          ; Zera SI, necess?rio para a fun??o de desenho
     xor BX, BX          ; Zera BX, que ser? usado para a cor
-    mov DI, CX          
-    dec DI
               
     mov DX, AX      ; DX recebe a linha onde a nave sera desenhada
 
@@ -906,7 +917,7 @@ loop_vidas:
     ; caso a nave ja river sido destruida, nao desenha a mesma
     mov BL, [vidas + DI]
     cmp BL, 0
-    je PRINTA_BLANK
+    je PULA_LOOP_VIDAS
 
     ; Carrega a cor correspondente da nave em "cor_vida" no ?ndice DI
     mov BL, [cor_vida + DI]  ; BL recebe a cor da nave
@@ -915,14 +926,10 @@ loop_vidas:
     call DESENHA_ELEMENTO_15X9   ; Chama a funcao para desenhar a nave
     jmp PULA_LOOP_VIDAS
     
-PRINTA_BLANK:
-    mov BL, -1
-    mov SI, offset blank_space   
-    call DESENHA_ELEMENTO_15X9   ; Chama a funcao para desenhar a nave
-    
 PULA_LOOP_VIDAS:
     add AX, 19 ; 10 de espaco entre naves + 9 da altura da mesma
-    pop CX
+    pop CX        
+    inc DI
     loop loop_vidas
 
     pop AX
@@ -1105,19 +1112,22 @@ loop_bonus_setor:
     pop BX
     je PULA_LOOP_BONUS
     
-    add [pont_total], AX
+    add pont_total, AX
     
 PULA_LOOP_BONUS:
     loop loop_bonus_setor
     
 CALC_PENALIDADE:
-    mov AX, word ptr [inimigas_escaparam_sector]
+    xor AX, AX
+    mov AL, inimigas_escaparam_sector
     mul BX
-    sub [pont_total], AX
+    mov CX, pont_total
+    sub pont_total, AX
+    mov CX, pont_total
     
     ; soma da pontuacao do setor na pont total
-    mov CX, [pont_sector]
-    add [pont_total], CX
+    mov CX, pont_sector
+    add pont_total, CX
     
     ret
 
@@ -1126,9 +1136,9 @@ endp
 ; setar qual tela esta (1,2,3)
 MOSTRA_SETOR proc
 
-    mov [inimigas_vivas_sector], 0
-    mov [tiro_exist], 0
-    mov [tiro_desl], 0
+    mov inimigas_vivas_sector, 0
+    mov tiro_exist, 0
+    mov tiro_desl, 0
     
     call ZERAR_VARIAVEIS_SETOR
 
@@ -1150,7 +1160,7 @@ MOSTRA_SETOR proc
 
 PRINTA_SET_1: 
     
-    mov [naves_inimigas_restante_setor], naves_set1 
+    mov naves_inimigas_restante_setor, naves_set1 
     
     mov BP, OFFSET setor_1
     mov BL, ciano_claro
@@ -1159,7 +1169,7 @@ PRINTA_SET_1:
 PRINTA_SET_2:
     
     
-    mov [naves_inimigas_restante_setor], naves_set2 
+    mov naves_inimigas_restante_setor, naves_set2 
     
     mov AX, 1000
     mov BX, 10
@@ -1171,7 +1181,7 @@ PRINTA_SET_2:
     
 PRINTA_SET_3:
     
-    mov [naves_inimigas_restante_setor], naves_set3
+    mov naves_inimigas_restante_setor, naves_set3
     
     mov AX, 2000
     mov BX, 20
@@ -1181,6 +1191,7 @@ PRINTA_SET_3:
     
 PRINTA_E_SAI:
     call LIMPAR_TELA
+    mov inimigas_escaparam_sector, 0
     
     ; Centralizar o texto
     mov DH, 9          ; Linha inicial = 9 (meio vertical da tela para altura de 6 linhas)
@@ -1424,23 +1435,21 @@ endp
         endp
 
 INICIO_JOGO proc
-    mov [tela_atual], 0
-    mov [contador_frames], 0
-    mov [pont_total], 0
+    mov tela_atual, 0
     call ZERAR_VARIAVEIS_JOGO
     
 PROXIMO_SETOR:
-    inc [tela_atual]
+    inc tela_atual
     call MOSTRA_SETOR
-    mov [pont_sector], 0
-    mov [cronometro_sector], sector_temp_total
+    mov pont_sector, 0
+    mov cronometro_sector, sector_temp_total
     
     mov CX, 47 ; coluna
     mov DX, 95 ; linha
     mov BL, branco
     mov SI, offset nave_aliada
     call DESENHA_ELEMENTO_15X9
-    mov [nave_principal], 30447 ; posicao do desenho na memoria de video aliada
+    mov nave_principal, 30447 ; posicao do desenho na memoria de video aliada
     
 LOOP_JOGO:
     call DESENHA_HEADER
@@ -1472,20 +1481,20 @@ REPE_JOGO:
     mov dx, frame_time
     call SLEEP
     
-    inc [contador_frames]
+    inc contador_frames
     call MOVE_ELEMENTOS
-    cmp [contador_frames], frame_time_test
+    cmp contador_frames, frame_time_test
     jne JMP_JOGO
     
-    mov [contador_frames], 0
-    dec [cronometro_sector]
-    cmp [cronometro_sector], 0
+    mov contador_frames, 0
+    dec cronometro_sector
+    cmp cronometro_sector, 0
     je PROXIMO_SETOR
     
     call GERAR_INIMIGO
     call MOVE_ELEMENTOS
     call CHECA_COLISAO_TIRO
-    ;call CHECA_COLISAO_VIDAS
+    call CHECA_COLISAO_VIDAS
     
 JMP_JOGO: 
     
@@ -1604,7 +1613,6 @@ mover_inimigo:
     dec CX
     
     mov AX, BX
-    xor DX, DX
     call OBTER_LINHA_ELEMENTO
     mov DX, AX   ; DX linha inicial
     
@@ -1694,11 +1702,8 @@ loop_vidas_testar:
     jb PULA_VIDA_ATUAL  ; sem colisao
     
     ;colidiu
-    
-    mov AX, [DI]
     call VIDA_COLISAO
     pop CX
-    mov [DI], 0
     jmp SAIR_COLISAO_VIDAS
     
 PULA_VIDA_ATUAL:
@@ -1722,27 +1727,45 @@ SAIR_COLISAO_VIDAS:
 
 endp
 
-;AX posic nave inimiga
+;[DI] posic nave inimiga
+;[SI] posic nave aliada
 VIDA_COLISAO proc
 
+    ; obtem coluna e linha da nave aliada
+    xor CX, CX ; CX coluna inicial (sempre 0 para nave aliada - vida)
+    
+    mov AX, [SI]
     xor DX, DX
-    mov BX, 320
-    div BX
+    call OBTER_LINHA_ELEMENTO
+    mov DX, AX   ; DX linha inicial
+    
+    mov BL, -1
+    mov SI, offset blank_space   
+    call DESENHA_ELEMENTO_15X9
+
+    ; obtem coluna e linha da nave inimiga
+    mov AX, [DI] 
+    xor DX, DX
+    call OBTER_COLUNA_ELEMENTO
+    mov CX, AX ; CX coluna inicial
+    
+    mov AX, [DI]
+    xor DX, DX
+    call OBTER_LINHA_ELEMENTO
+    mov DX, AX   ; DX linha inicial
+    
+    mov BL, -1
+    mov SI, offset blank_space   
+    call DESENHA_ELEMENTO_15X9
+    
+    xor AX, AX
     
     mov SI, vida_testando
-    mov [vidas + SI], 0
-    
-    xor SI, SI          ; Zera SI, necess?rio para a fun??o de desenho
-    xor BX, BX          ; Zera BX, que ser? usado para a cor
-    mov CX, 0
-    mov DX, AX
-    mov BL, -1      ; BL nao muda cor da nave inimiga
-    mov SI, offset blank_space   
-    call DESENHA_ELEMENTO_15X9   ; Chama a funcao para desenhar a nave
+    mov [vidas + SI], 0 ; zera vida
+    mov [DI], 0 ; zera nave inimiga para nao descontar da pontuacao
     
     dec inimigas_vivas_sector
     inc naves_inimigas_restante_setor
-    
     
     ret
 
@@ -1775,13 +1798,13 @@ loop_checa_posic:
 SAIR_LOOP_CHECA_POSIC:
     
     ; gerar num aleatorio para a coluna
-    mov BX, 161
-    mov CX, 300
+    mov BX, 40
+    mov CX, 45
     call GERAR_NUM_ALEATORIO
     mov nave_ini_coluna, AX ; coluna da nova nave inimiga
     
     ; gerar num aleatorio para a coluna
-    mov BX, 25
+    mov BX, 20
     mov CX, 150
     call GERAR_NUM_ALEATORIO
     mov nave_ini_linha, AX ; linha onde a nave sera desenhada
@@ -1826,10 +1849,10 @@ GERAR_NUM_ALEATORIO proc
     push DX
 
     mov AX, 25173          ; LCG Multiplier
-    mul word ptr [random_num_seed]     ; DX:AX = LCG multiplier * seed
+    mul word ptr random_num_seed     ; DX:AX = LCG multiplier * seed
     add AX, 13849          ; Add LCG increment value
     ; Modulo 65536, AX = (multiplier*seed+increment) mod 65536
-    mov [random_num_seed], AX          ; Update seed = return value
+    mov random_num_seed, AX          ; Update seed = return value
     
     ; Map AX into the desired range [min, max]
     sub CX, BX             ; CX = max - min
