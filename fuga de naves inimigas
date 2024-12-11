@@ -294,9 +294,6 @@ MOVE_HORIZONTAL proc
     ret
 endp
 
-DESENHA_ELEMENTO_15X9_TOTAL proc
-
-ret
 endp
 
 
@@ -1100,9 +1097,12 @@ CALCULA_BONUS_SETOR proc
 loop_bonus_setor:
     mov DI, CX          
     dec DI
-             
+    
+    push BX    
+    
     mov BL, [vidas + DI]
     cmp BL, 0
+    pop BX
     je PULA_LOOP_BONUS
     
     add [pont_total], AX
@@ -1113,7 +1113,7 @@ PULA_LOOP_BONUS:
 CALC_PENALIDADE:
     mov AX, word ptr [inimigas_escaparam_sector]
     mul BX
-    ;sub [pont_total], AX
+    sub [pont_total], AX
     
     ; soma da pontuacao do setor na pont total
     mov CX, [pont_sector]
@@ -1485,7 +1485,7 @@ REPE_JOGO:
     call GERAR_INIMIGO
     call MOVE_ELEMENTOS
     call CHECA_COLISAO_TIRO
-    call CHECA_COLISAO_VIDAS
+    ;call CHECA_COLISAO_VIDAS
     
 JMP_JOGO: 
     
@@ -1498,7 +1498,7 @@ MOVE_ELEMENTOS proc
     push dx
     push cx
     
-    ; call MOVIMENTA_CENARIO
+    ;call MOVIMENTA_CENARIO
     call MOVIMENTA_TIRO
     call MOVIMENTA_INIMIGOS
     
@@ -1507,6 +1507,53 @@ SAIR_MOVE_ELEMENTOS:
     pop cx
     pop dx
     pop ax
+
+    ret
+
+endp
+
+; recebe em AX a posic
+; devolve em AX a coluna
+OBTER_COLUNA_ELEMENTO proc
+
+    push DX
+    push BX  
+    push CX
+    
+    mov CX, AX
+
+    xor DX, DX
+    mov BX, 320
+    div BX      
+    mul BX
+    mov DX, AX
+    mov AX, CX
+    sub AX, DX
+           
+    pop CX       
+    pop BX
+    pop DX
+
+    ret
+
+endp
+; recebe em AX a posic
+; devolve em AX a coluna
+OBTER_LINHA_ELEMENTO proc
+
+    push DX
+    push BX 
+    push CX 
+    
+    mov CX, AX
+
+    xor DX, DX
+    mov BX, 320
+    div BX
+           
+    pop CX 
+    pop BX
+    pop DX
 
     ret
 
@@ -1530,7 +1577,6 @@ loop_movimenta_ini:
     mov BX, [DI]
     cmp BX, 0
     jne mover_inimigo
-    
     add DI, 2
     jmp loop_movimenta_ini
     
@@ -1543,11 +1589,39 @@ mover_inimigo:
     mov DI, AX
     sub word ptr [DI], 1
     
+    ; testa a coluna da nave
+    mov AX, BX 
+    xor DX, DX
+    call OBTER_COLUNA_ELEMENTO
+    cmp AX, 1
+    jg prox_inimigo
+    
+    ; limpa a nave
+    push CX
+    
+    xor DX, DX
+    mov CX, AX ; CX coluna inicial
+    dec CX
+    
+    mov AX, BX
+    xor DX, DX
+    call OBTER_LINHA_ELEMENTO
+    mov DX, AX   ; DX linha inicial
+    
+    mov BL, -1
+    mov SI, offset blank_space   
+    call DESENHA_ELEMENTO_15X9   ; Chama a funcao para desenhar a nave
+    
+    mov [DI], 0
+    dec inimigas_vivas_sector
+    inc naves_inimigas_restante_setor
+    inc inimigas_escaparam_sector
+    
+    pop CX
     
 prox_inimigo:
     add DI, 2
     loop loop_movimenta_ini
-    
     
 sair_mover_ini:
     pop SI
