@@ -5,6 +5,7 @@
 .DATA
     ; cores
     verde EQU 2h
+    verde_claro EQU 0Ah
     vermelho EQU 4h
     vermelho_claro EQU 0Ch
     branco EQU 0Fh
@@ -28,6 +29,7 @@
     ;posicoes naves
     
     nave_principal dw ?
+    cor_nave_principal db branco
     velocidade_nave_principal equ 640 ; 2 linhas por vez
     
     vidas db 1
@@ -38,6 +40,16 @@
           db 1
           db 1
           db 1
+          
+    posic_vidas dw 6400  ; todas coluna 0, comeca na linha 20 e incrementa 19 entre cada nave
+                dw 12480
+                dw 18560
+                dw 24640
+                dw 30720
+                dw 36800
+                dw 42880
+                dw 48960
+                
                     
     cor_vida db 4h
              db 5h
@@ -47,6 +59,14 @@
              db 0Ch
              db 0Ah
              db 9h
+             
+     naves_inimigas dw 20 dup(0) ; posicao de cada nave 
+     naves_inimigas_restante_setor db ? ; comeca de naves_set1,2,3 quando existir 1 nave inimiga em tela, diminui 1, se matar ou morrer, volta 1
+     inimigas_vivas_sector dw 0 ; usado para controlar a qtd de naves simultaneas em cada setor
+     
+     naves_set1 equ 10
+     naves_set2 equ 15
+     naves_set3 equ 20
 
 ; desenhos
     
@@ -132,27 +152,27 @@
                   db 0,0,0,0,0,0,0,0,0,9,9,0,0,0,0
                   db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
     
-                  cenario db 3 dup(06H), 18 dup(0H), 3 dup(06H), 16 dup(0H), 06H, 92 dup(0H), 06H, 56 dup(0H), 2 dup(06H), 36 dup(0H), 3 dup(06H), 94 dup(0H), 2 dup(06H), 21 dup(0H), 4 dup(06H), 38 dup(0H), 2 dup(06H), 35 dup(0H), 2 dup(06H), 28 dup(0H), 4 dup(06H), 18 dup(0H), 06H
-                  db 4 dup(06H), 17 dup(09H), 3 dup(06H), 16 dup(0h), 2 dup(06H), 44 dup(0H), 2 dup(06H), 14 dup(0H), 9 dup(06H), 20 dup(0H), 4 dup(06H), 52 dup(0H), 7 dup(06H), 34 dup(0H), 3 dup(06H), 94 dup(0H), 2 dup(06H), 18 dup(0H),  7 dup(06H), 36 dup(0H), 5 dup(06H), 33 dup(0H), 3 dup(06H), 26 dup(0H), 7 dup(06H), 16 dup(0H), 2 dup(06H)
-                  db 6 dup(06H), 14 dup(09H), 4 dup(06H), 15 dup(0H), 3 dup(06H), 42 dup(0H), 5 dup(06H), 11 dup(09H), 13 dup(06H), 16 dup (0H), 7 dup(06H), 51 dup(0H), 8 dup(06H), 32 dup(0H), 5 dup(06H), 93 dup(0H), 2 dup(06H), 17 dup(0H), 9 dup(06H), 34 dup(0H), 7 dup(06H), 30 dup(0H), 6 dup(06H), 22 dup(0H), 11 dup(06H), 14 dup(0H), 3 dup(06H)
-                          db 7 dup(06H), 8 dup(09H), 8 dup(06H), 13 dup(09H), 6 dup(06H), 27 dup(09H), 4 dup(06H), 9 dup(0H), 6 dup(06H), 10 dup(09H), 15 dup(06H), 15 dup(0H), 9 dup(06H), 49 dup(0H), 11 dup(06H), 28 dup(0H), 7 dup(06H), 81 dup(0H), 5 dup(06H), 5 dup(0H), 4 dup(06H), 15 dup(0H), 11 dup(06H), 32 dup(0H), 10 dup(06H),  26 dup(0H), 9 dup(06H), 21 dup(0H), 13 dup(06H),  13 dup(0H), 3 dup(06H)
-                          db 9 dup(06H), 7 dup(09H), 10 dup(06H), 10 dup(09H), 8 dup(06H), 26 dup(09H), 5 dup(06H), 7 dup(0H), 8 dup(06H), 8 dup(09H), 20 dup(06H), 10 dup(09H), 12 dup(06H), 46 dup(0H), 14 dup(06H),  21 dup(0H), 14 dup(06H), 77 dup(0H), 7 dup(06H), 5 dup(0H), 5 dup(06H), 13 dup(09H), 13 dup(06H), 30 dup(0H), 12 dup(06H), 24 dup(09H), 11 dup(06H), 20 dup(0H), 14 dup(06H), 11 dup(0H), 3 dup(06H)
-                          db 26 dup(06H), 9 dup(09H), 9 dup(06H), 23 dup(09H), 9 dup(06H), 4 dup(0H), 10 dup(06H), 6 dup(09H), 23 dup(06H), 8 dup(09H), 22 dup(06H), 35 dup(0H), 16 dup(06H), 19 dup(0H), 17 dup(06H), 23 dup(0H), 10 dup(06H), 15 dup(0H), 4 dup(06H), 22 dup(0H), 8 dup(06H), 4 dup(0H), 7 dup(06H), 14 dup(09H), 11 dup(06H), 30 dup(0H), 12 dup(06H), 23 dup(09H), 11 dup(06H), 20 dup(09H), 15 dup(06H), 9 dup(0H), 6 dup(06H)
-                          db 27 dup(06H), 8 dup(09H), 10 dup(06H), 22 dup(09H), 11 dup(06H), 3 dup(0H), 11 dup(06H), 3 dup(09H), 28 dup(06H), 4 dup(09H), 24 dup(06H), 7 dup(09H), 5 dup(06H), 21 dup(0H), 19 dup(06H), 16 dup(0H), 19 dup(06H), 22 dup(0H), 11 dup(06H), 11 dup(06H), 8 dup(06H), 21 dup(0H), 8 dup(06H), 4 dup(0H), 7 dup(06H), 14 dup(09H), 13 dup(06H), 27 dup(06H), 16 dup(06H), 21 dup(09H), 12 dup(06H), 19 dup(09H), 15 dup(06H), 8 dup(0H), 5 dup(06H)
-                          db 30 dup(06H), 3 dup(09H), 14 dup(06H), 2 dup(09H), 6 dup(06H), 3 dup(09H), 6 dup(06H), 2 dup(09H), 98 dup(06H), 18 dup(0H), 22 dup(06H), 15 dup(09H), 22 dup(06H), 19 dup(0H), 12 dup(06H), 7 dup(09H), 12 dup(06H), 19 dup(0H), 8 dup(06H), 4 dup(0H), 9 dup(06H), 11 dup(09H), 15 dup(06H), 26 dup(0H), 18 dup(06H), 19 dup(09H), 14 dup(06H), 18 dup(09H), 16 dup(06H), 5 dup(0H), 7 dup(06H)
-                          db 165 dup(06H), 14 dup(0H), 28 dup(06H), 13 dup(09H), 23 dup(06H), 17 dup(0H), 14 dup(06H), 5 dup(09H), 14 dup(06H), 16 dup(0H), 10 dup(06H), 3 dup(0H), 12 dup(06H), 5 dup(09H), 19 dup(06H), 22 dup(0H), 20 dup(06H), 17 dup(09H), 17 dup(06H), 18 dup(09H), 28 dup(06H)
-                          db 166 dup(06H), 12 dup(09H), 33 dup(06H), 9 dup(09H), 24 dup(06H), 15 dup(0H), 18 dup(06H), 09H, 19 dup(06H), 11 dup(0H), 50 dup(06H), 6 dup(09H), 4 dup(06H), 9 dup(0H), 27 dup(06H), 11 dup(09H), 20 dup(06H), 7 dup(09H), 4 dup(06H), 7 dup(09H), 27 dup(06H)
-                          db 168 dup(06H), 10 dup(09H), 34 dup(06H), 8 dup(09H), 26 dup(06H), 12 dup(0H), 41 dup(06H), 8 dup(0H), 53 dup(06H), 3 dup(09H), 8 dup(06H), 5 dup(0H), 29 dup(06H), 8 dup(09H), 23 dup(06H), 4 dup(09H), 8 dup(06H), 5 dup(09H), 27 dup(06H)
-                          db 170 dup(06H), 6 dup(09H), 36 dup(06H), 8 dup(09H), 29 dup(06H), 8 dup(0H), 45 dup(06H), 4 dup(0H), 100 dup(06H), 7 dup(09H), 24 dup(06H), 2 dup(09H), 12 dup(06H), 2 dup(09H), 27 dup(06H)
-                          db 172 dup(06H), 09H, 40 dup(06H), 6 dup(09H), 34 dup(06H), 3 dup(0H), 151 dup(06H), 2 dup(09H), 71 dup(06H)
-                          db 216 dup(06H), 2 dup(09H), 262 dup(06H)
-                          db 480 dup(06H)
-                          db 480 dup(06H)
-                          db 480 dup(06H)
-                          db 480 dup(06H)
-                          db 480 dup(06H)
-                          db 480 dup(06H)
-                          
+       cenario db 55 dup(0H), 23 dup(06H), 46 dup(0H), 21 dup(06H), 37 dup(0H), 21 dup(06H), 112 dup(0H), 21 dup(06H), 31 dup(0H), 21 dup(06H), 28 dup(0H), 21 dup(06H), 43 dup(0H)  
+            db 30 dup(0H), 9 dup(06H), 23 dup(0H), 15 dup(06H), 31 dup(0H), 10 dup(06H), 25 dup(0H), 10 dup(06H), 32 dup(0H), 11 dup(06H), 131 dup(0H), 9 dup(06H), 12 dup(0H), 10 dup(06H), 34 dup(0H), 10 dup(06H), 17 dup(0H), 8 dup(06H), 15 dup(0H), 9 dup(06H), 29 dup(0H)  
+            db 27 dup(0H), 9 dup(06H), 17 dup(0H), 18 dup(06H), 25 dup(0H), 9 dup(06H), 15 dup(0H), 7 dup(06H), 8 dup(0H), 9 dup(06H), 25 dup(0H), 15 dup(06H), 25 dup(0H), 6 dup(06H),7 dup(0H), 6 dup(06H), 24 dup(0H), 6 dup(06H), 78 dup(0H), 10 dup(06H), 8 dup(0H), 8 dup(06H), 25 dup(0H), 8 dup(06H), 8 dup(0H), 10 dup(06H), 13 dup(0H), 8 dup(06H), 11 dup(0H), 11 dup(06H), 24 dup(0bH)        
+            db 26 dup(0bH), 13 dup(06H), 16 dup(0H), 23 dup(06H), 24 dup(0bH), 13 dup(06H), 13 dup(0H), 24 dup(06H), 17 dup(0H), 23 dup(06H), 19 dup(0H), 17 dup(06H), 23 dup(0bH), 10 dup(06H), 74 dup(0bH), 18 dup(06H), 8 dup(0H), 16 dup(06H), 18 dup(0bH), 35 dup(06H), 9 dup(0H), 18 dup(06H), 23 dup(0bH)      
+            db 31 dup(0bH), 52 dup(06H), 25 dup(0bH), 98 dup(06H), 28 dup(0bH), 21 dup(06H), 78 dup(0bH), 38 dup(06H), 20 dup(0bH), 61 dup(06H), 28 dup(0bH)     
+            db 73 dup(06H), 24 dup(0bH), 104 dup(06H), 29 dup(0bH), 29 dup(06H), 71 dup(0bH), 51 dup(06H), 21 dup(0bH), 78 dup(06H) 
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+            db 480 dup(06H)
+
             
     blank_space db 135 dup(0)
     btn_jogar db "JOGAR  "
@@ -170,9 +190,13 @@
 
     qtd_px_mov_naves dw 5
     
-    frame_time equ 16667 ; tempo entre alteracoes dos elementos
+    frame_time equ 09C40h ; tempo entre alteracoes dos elementos (40ms em hexa)
+    frame_time_test equ 25 ; alterar caso alterar frame time (deve ser = quantos 'frame_time' existem em 1s)
+    
     sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
-    sector_temp_total equ 2
+    sector_temp_total equ 30 ; tempo em segundos de cada setor
+    sector_temp_str db 2 dup (?)
+    tam_sector_temp_str equ $ - sector_temp_str
     
     tiro_exist dw 0 ; caso seja 0 o nao existe nenhum tiro e pode atirar
     tiro_desl dw 0 ; controla o deslocamento do tiro
@@ -182,11 +206,19 @@
     desloc_cen dw 0
     
     pont_total dw 0
+    pont_total_str db 6 dup (?)
+    tam_pont_total_str equ $ - pont_total_str
+    
     pont_sector dw 0
-    inimigas_vivas_sector db 0 ; usado para controlar a qtd de naves simultaneas em cada setor
     inimigas_escaparam_sector db 0 ; usado para calcular reducao de pontuacao ao passar de setor
-    cor_troca db ?
+    
     venceu db 0 ; quando todas vidas acabarem, perdeu
+    
+    random_num_seed dw ? ; utilizado para armazenar a seed para LCG
+    nave_ini_coluna dw ?
+    nave_ini_linha dw ?
+    
+    vida_testando dw ?
     
 .code 
 
@@ -260,6 +292,11 @@ MOVE_HORIZONTAL proc
     pop CX
     pop AX ; recupera registradores
     ret
+endp
+
+DESENHA_ELEMENTO_15X9_TOTAL proc
+
+ret
 endp
 
 
@@ -373,6 +410,56 @@ ESC_UINT16 proc
     dec CX
     cmp CX, 0
     jnz LACO_ESCRITA
+          
+          
+    pop DX
+    pop CX
+    pop BX
+    pop AX
+       
+    ret
+endp
+
+CALC_UINT16_STR proc
+    push AX
+    push BX
+    push CX
+    push DX
+    
+    mov BX, 10    
+    xor CX, CX
+    
+    cmp AX, 10
+    jnl LACO_DIGITO2
+    
+    cmp AX, 0
+    je LACO_DIGITO2
+    
+    mov DL, '0'
+    mov [DI], DL
+    inc DI
+    
+  LACO_DIGITO2:    
+    xor DX, DX         
+    div BX
+    
+    push DX
+       
+    inc CX
+    
+    cmp AX, 0   
+        
+    jnz LACO_DIGITO2
+                          
+     
+  LACO_ESCRITA2:                    
+    pop DX
+    add DL, '0'
+    mov [DI], DL
+    inc DI
+    dec CX
+    cmp CX, 0
+    jnz LACO_ESCRITA2
           
           
     pop DX
@@ -629,9 +716,19 @@ SAIR_MOVE_NAVES_MENU:
     ret
 endp
 
+SEED_CPU proc
+
+    mov AH, 00h   ; interrup??o que pega o timer do sistema em CX:DX 
+    int 1Ah
+    mov [random_num_seed], dx
+
+    ret
+endp
+
 DESENHA_MENU proc
     call LIMPAR_TELA
-
+    call SEED_CPU
+    
     mov DH, 0
     mov DL, 0
     mov CX, 400
@@ -687,6 +784,42 @@ FIM_DESENHA_MENU:
     ret
 endp
 
+ZERAR_VARIAVEIS_SETOR proc
+
+    push CX
+    push DI
+
+    mov CX, naves_set3
+    mov DI, offset naves_inimigas
+loop_checa_posic_zerar:  
+    mov [DI], 0   
+    add DI, 2
+    loop loop_checa_posic_zerar
+
+    
+    pop DI
+    pop CX
+    
+    ret
+endp
+
+ZERAR_VARIAVEIS_JOGO proc
+    push AX
+    push CX
+
+    mov CX, 6
+    mov DI, OFFSET pont_total_str
+loop_zera_str:
+    mov [DI], ' '
+    inc DI
+    loop loop_zera_str
+
+    pop CX
+    pop AX
+    
+    ret
+endp
+
 LIMPAR_TELA proc
     push AX
     push ES
@@ -711,13 +844,6 @@ LIMPAR_TELA proc
 endp
 
 DESENHA_HEADER proc
-    push ax
-    push bx
-    push cx
-    push dx
-    push bp
-
-    ; Exibe a pontuação
     mov BP, OFFSET score
     mov DH, 0
     mov DL, 0
@@ -725,27 +851,38 @@ DESENHA_HEADER proc
     mov BL, branco
     call ESCREVE_STRING
     
-    mov AX, word ptr pont_sector
-    call ESC_UINT16
+    mov AX, pont_total
+    mov DI, OFFSET pont_total_str
+    call CALC_UINT16_STR
     
-    ; Exibe o tempo
+    mov BP, OFFSET pont_total_str
+    mov DH, 0
+    mov DL, 6
+    mov CX, tam_pont_total_str
+    mov BL, verde_claro
+    call ESCREVE_STRING
+    
     mov BP, OFFSET tempo
     mov DH, 0
     mov DL, 31
     mov CX, 7
     mov BL, branco
     call ESCREVE_STRING
-
-    mov AX, word ptr cronometro_sector
-    call ESC_UINT16
-
-    pop bp
-    pop dx
-    pop cx
-    pop bx
-    pop ax
+    
+    xor AX,AX
+    mov AL, cronometro_sector
+    mov DI, OFFSET sector_temp_str
+    call CALC_UINT16_STR
+    
+    mov BP, OFFSET sector_temp_str
+    mov DH, 0
+    mov DL, 37
+    mov CX, tam_sector_temp_str
+    mov BL, verde_claro
+    call ESCREVE_STRING
+    
     ret
-ENDP
+endp
 
 DESENHA_VIDAS proc
     push BX
@@ -765,24 +902,30 @@ loop_vidas:
     dec DI
               
     mov DX, AX      ; DX recebe a linha onde a nave sera desenhada
+
+    push CX
+    xor CX, CX          ; Coluna 0 para todas as naves
     
     ; caso a nave ja river sido destruida, nao desenha a mesma
     mov BL, [vidas + DI]
     cmp BL, 0
-    je PULA_LOOP_VIDAS
-    
+    je PRINTA_BLANK
+
     ; Carrega a cor correspondente da nave em "cor_vida" no ?ndice DI
     mov BL, [cor_vida + DI]  ; BL recebe a cor da nave
-
-    push CX
-    mov CX, 0          ; Coluna 0 para todas as naves
-
+    
     mov SI, offset nave_aliada   
     call DESENHA_ELEMENTO_15X9   ; Chama a funcao para desenhar a nave
-    pop CX
+    jmp PULA_LOOP_VIDAS
+    
+PRINTA_BLANK:
+    mov BL, -1
+    mov SI, offset blank_space   
+    call DESENHA_ELEMENTO_15X9   ; Chama a funcao para desenhar a nave
     
 PULA_LOOP_VIDAS:
     add AX, 19 ; 10 de espaco entre naves + 9 da altura da mesma
+    pop CX
     loop loop_vidas
 
     pop AX
@@ -794,97 +937,89 @@ PULA_LOOP_VIDAS:
 endp
 
 DESENHA_CENARIO proc
-    push ax
-    push cx
-    push dx
-    push si
-    push di
+    mov ax, memoria_video       ; Segmento de mem?ria de v?deo (modo gr?fico 13h)
+    mov es, ax                  ; Aponta ES para o segmento de v?deo
 
-    mov ax, memoria_video       ; Segmento de memória de vídeo (modo gráfico 13h)
-    mov es, ax                  ; Aponta ES para o segmento de vídeo
+    mov si, offset cenario      ; Aponta SI para o in?cio do vetor cenario
+    add si, desloc_cen          ; Desloca o ponteiro para o valor correto do cen?rio
 
-    mov si, offset cenario      ; Aponta SI para o início do vetor `cenario`
-    add si, desloc_cen          ; Aplica o deslocamento para o cenário
+    cmp tela_atual, 1           ; Se tela_atual == 1, imprime o cen?rio original
+    je PRINTA_CENARIO
+
+    cmp tela_atual, 2           ; Se tela_atual == 2, altera a cor para um valor diferente
+    je ALTERA_COR_CENARIO_2
+
+    cmp tela_atual, 3           ; Se tela_atual == 3, altera a cor para outro valor
+    je ALTERA_COR_CENARIO_3
 
 PRINTA_CENARIO:
-    mov di, 57920               ; Offset inicial na memória de vídeo
-    mov dx, 20                  ; Número de linhas a desenhar
+    mov di, 57920
+    mov dx, 20
 desenha_linha_ter:
-    mov cx, 320                 ; Número de pixels por linha
-    rep movsb                   ; Copia a linha do cenário para a tela
-
-    add si, 160                 ; Avança o ponteiro no cenário para a próxima linha
-    dec dx                      ; Decrementa o contador de linhas
-    jnz desenha_linha_ter       ; Continua enquanto houver linhas a desenhar
-
-END_PROC:
-    pop di
-    pop si
-    pop dx
-    pop cx
-    pop ax
+    mov cx, 320
+    rep movsb
+    
+    add si, 160
+    dec dx
+    jnz desenha_linha_ter
     ret
-ENDP
+    
+DRAW_LOOP:
+    lodsb                       ; Carrega o pr?ximo byte de DS:SI (vetor 'cenario') no AL
+    stosb                       ; Armazena o valor de AL diretamente em ES:DI (pixel na tela)
+    loop DRAW_LOOP              ; Repete at? desenhar todos os pixels
+    ret
 
+ALTERA_COR_CENARIO_2:
+    mov di, 57920               ; Offset na mem?ria de v?deo
+    mov cx, 6400                ; N?mero de pixels
+    mov bl, 04h                 ; Nova cor (exemplo: 04h - vermelho claro)
+
+CHANGE_COLOR_LOOP_2:
+    lodsb                       ; Carrega o pr?ximo byte de DS:SI
+    cmp al, 06h                 ; Verifica se o pixel atual tem a cor 06h (por exemplo, cor do cen?rio)
+    jne SKIP_COLOR_CHANGE_2     ; Se n?o for a cor 06h, pula a altera??o
+    mov al, bl                  ; Altera a cor para 04h (vermelho claro)
+SKIP_COLOR_CHANGE_2:
+    stosb                       ; Escreve o valor atualizado (ou original) em ES:DI
+    loop CHANGE_COLOR_LOOP_2    ; Repete o loop at? processar todos os pixels
+    ret
+
+ALTERA_COR_CENARIO_3:
+    mov di, 57920               ; Offset na mem?ria de v?deo
+    mov cx, 6400                ; N?mero de pixels
+    mov bl, 0Ah                 ; Nova cor (exemplo: 0Ah - verde claro)
+
+CHANGE_COLOR_LOOP_3:
+    lodsb                       ; Carrega o pr?ximo byte de DS:SI
+    cmp al, 06h                 ; Verifica se o pixel atual tem a cor 06h
+    jne SKIP_COLOR_CHANGE_3     ; Se n?o for a cor 06h, pula a altera??o
+    mov al, bl                  ; Altera a cor para 0Ah (verde claro)
+SKIP_COLOR_CHANGE_3:
+    stosb                       ; Escreve o valor atualizado (ou original) em ES:DI
+    loop CHANGE_COLOR_LOOP_3    ; Repete o loop at? processar todos os pixels
+    ret
+
+ENDP
 
 MOVIMENTA_CENARIO proc
-    push ax
-    push si
+    push AX
+    push SI
 
-    xor ax, ax
-    add desloc_cen, 3           ; Incrementa o deslocamento (movimento horizontal)
+    xor AX, AX
+    add desloc_cen, 3           ; Incrementa o deslocamento em 2 (movimento horizontal)
 
-    ; Verifica se o deslocamento ultrapassou o limite
-    cmp desloc_cen, 320
-    jl continua_movimento
-    mov desloc_cen, 0           ; Reseta o deslocamento se ultrapassou o limite
+    cmp desloc_cen, 320         ; Se desloc_cen >= 320, reseta o cen?rio
+    jl continua_movimento       ; Se desloc_cen < 320, continua o movimento
+
+    mov desloc_cen, 0           ; Reseta o deslocamento ao ultrapassar o limite
 
 continua_movimento:
-    call DESENHA_CENARIO        ; Chama a função para desenhar o cenário atualizado
+    call DESENHA_CENARIO        ; Chama a fun??o para desenhar o cen?rio atualizado
     pop si
     pop ax
     ret
 ENDP
-
-remapeia_cor_terreno proc
-                push ax
-                push bx
-                push cx
-                push si
-                push ds
-
-                mov ax, @data
-                mov ds, ax
-                
-                ;posicao do sprite em si
-                mov cx, 480*20
-
-            substituir_cor_terreno:
-                lodsb              ; Carrega o byte apontado por DS:SI em AL e incrementa SI
-                cmp al, cor_troca          ; Compara o byte com 0
-                jnz proximo_byte_terreno    ; Se o byte for 0, pula para o pr??ximo
-
-                ; Substitui o byte por corObjetoTela se for maior que 0
-                mov [si-1], bl
-                jmp proximo_byte_terreno
-
-                substituiLago:
-                    mov bl, 11 ; Cor para remapear
-                    mov [si-1], bl
-
-            proximo_byte_terreno:
-                ; Decrementa o contador de bytes e repete at?? o final
-                loop substituir_cor_terreno
-
-                ; Restaurar DS original
-                pop ds
-                pop si
-                pop cx
-                pop bx
-                pop ax
-        ret
-        endp
-
 
 ; testar e mostrar se venceu ou perdeu. 
 ; deixar o usuario escolher se joga de novo ou sai
@@ -892,7 +1027,7 @@ VENCEU_PERDEU proc
 
     call LIMPAR_TELA
     
-    cmp [venceu], 1
+    cmp venceu, 1
     jne GAME_OVER_
     
     ; venceu
@@ -907,13 +1042,21 @@ VENCEU_PERDEU proc
     
     mov BP, OFFSET pontuacao
     mov DH, 15
-    mov DL, 0
+    mov DL, 1
     mov CX, 11
     mov BL, branco
     call ESCREVE_STRING
     
-    mov AX, [pont_total]
-    call ESC_UINT16
+    mov AX, pont_total
+    mov DI, OFFSET pont_total_str
+    call CALC_UINT16_STR
+    
+    mov BP, OFFSET pont_total_str
+    mov DH, 15
+    mov DL, 11
+    mov CX, tam_pont_total_str
+    mov BL, verde_claro
+    call ESCREVE_STRING
     
     jmp ESPERA_TECLA
     
@@ -932,7 +1075,7 @@ ESPERA_TECLA:
     
     mov BP, OFFSET pressione
     mov DH, 20
-    mov DL, 0
+    mov DL, 1
     mov CX, 39
     mov BL, branco
     call ESCREVE_STRING
@@ -983,9 +1126,11 @@ endp
 ; setar qual tela esta (1,2,3)
 MOSTRA_SETOR proc
 
+    mov [inimigas_vivas_sector], 0
     mov [tiro_exist], 0
     mov [tiro_desl], 0
-    mov [desloc_cen], 0
+    
+    call ZERAR_VARIAVEIS_SETOR
 
     cmp tela_atual, 1
     je PRINTA_SET_1
@@ -1000,41 +1145,37 @@ MOSTRA_SETOR proc
     mov BX, 30
     call CALCULA_BONUS_SETOR
     
-    mov [venceu], 1
+    mov venceu, 1
     call VENCEU_PERDEU
 
 PRINTA_SET_1: 
+    
+    mov [naves_inimigas_restante_setor], naves_set1 
+    
     mov BP, OFFSET setor_1
     mov BL, ciano_claro
     jmp PRINTA_E_SAI
     
 PRINTA_SET_2:
+    
+    
+    mov [naves_inimigas_restante_setor], naves_set2 
+    
     mov AX, 1000
     mov BX, 10
     call CALCULA_BONUS_SETOR
-    
-    mov [cor_troca], 06H
-    xor BX, BX
-    mov BL, vermelho
-    mov SI, OFFSET cenario
-    call remapeia_cor_terreno
-    
     
     mov BP, OFFSET setor_2
     mov BL, azul_claro
     jmp PRINTA_E_SAI
     
 PRINTA_SET_3:
+    
+    mov [naves_inimigas_restante_setor], naves_set3
+    
     mov AX, 2000
     mov BX, 20
     call CALCULA_BONUS_SETOR
-    
-    mov [cor_troca], vermelho
-    xor BX, BX
-    mov BL, branco
-    mov SI, offset cenario
-    call remapeia_cor_terreno
-    
     mov BP, OFFSET setor_3
     mov BL, magenta_claro
     
@@ -1286,6 +1427,7 @@ INICIO_JOGO proc
     mov [tela_atual], 0
     mov [contador_frames], 0
     mov [pont_total], 0
+    call ZERAR_VARIAVEIS_JOGO
     
 PROXIMO_SETOR:
     inc [tela_atual]
@@ -1332,7 +1474,7 @@ REPE_JOGO:
     
     inc [contador_frames]
     call MOVE_ELEMENTOS
-    cmp [contador_frames], 40
+    cmp [contador_frames], frame_time_test
     jne JMP_JOGO
     
     mov [contador_frames], 0
@@ -1340,7 +1482,10 @@ REPE_JOGO:
     cmp [cronometro_sector], 0
     je PROXIMO_SETOR
     
+    call GERAR_INIMIGO
     call MOVE_ELEMENTOS
+    call CHECA_COLISAO_TIRO
+    call CHECA_COLISAO_VIDAS
     
 JMP_JOGO: 
     
@@ -1352,18 +1497,10 @@ MOVE_ELEMENTOS proc
     push ax
     push dx
     push cx
-
-    mov ax, word ptr [contador_frames] ; Carrega contador_frames em AX
-    xor dx, dx                 ; Zera DX para evitar resto sujo
-    mov cx, 10                ; Divisor ? 10
-    div cx                    ; AX / CX; Resto em DX
-    cmp dx, 0                 ; Verifica se o resto ? 0
-    jne SAIR_MOVE_ELEMENTOS
-
     
+    ; call MOVIMENTA_CENARIO
     call MOVIMENTA_TIRO
-    call MOVIMENTA_CENARIO
-
+    call MOVIMENTA_INIMIGOS
     
 SAIR_MOVE_ELEMENTOS:
 
@@ -1375,6 +1512,267 @@ SAIR_MOVE_ELEMENTOS:
 
 endp
 
+MOVIMENTA_INIMIGOS proc
+    
+    push CX
+    push DI
+    push DX
+    push SI
+
+    mov CX, inimigas_vivas_sector
+    cmp CX, 0
+    je sair_mover_ini
+    
+    mov DI, offset naves_inimigas
+    
+loop_movimenta_ini:
+    mov AX, DI
+    mov BX, [DI]
+    cmp BX, 0
+    jne mover_inimigo
+    
+    add DI, 2
+    jmp loop_movimenta_ini
+    
+mover_inimigo:
+    mov SI, BX
+    mov DI, SI
+    sub DI, 1 ; quanto vai movimentar
+    mov DX, 1
+    call MOVE_HORIZONTAL
+    mov DI, AX
+    sub word ptr [DI], 1
+    
+    
+prox_inimigo:
+    add DI, 2
+    loop loop_movimenta_ini
+    
+    
+sair_mover_ini:
+    pop SI
+    pop DX
+    pop DI
+    pop CX
+    
+    ret
+    
+endp
+
+CHECA_COLISAO_TIRO proc
+
+
+    ret
+
+endp
+
+CHECA_COLISAO_VIDAS proc
+
+    push BX
+    push CX
+    push DX
+    push SI
+    push AX
+              
+    mov CX, inimigas_vivas_sector 
+    mov DI, offset naves_inimigas
+    
+loop_vidas_inimigas:
+    
+    push CX ; salvar passe do loop das naves inimigas
+    
+    mov CX, 8 ; 8 elementos no array "posic_vidas"
+    
+    mov SI, offset posic_vidas
+    mov vida_testando, 0
+    
+loop_vidas_testar:
+    push SI
+    mov SI, vida_testando
+    ; caso a nave ja river sido destruida, nao testa mais 
+    mov BL, [vidas + SI]
+    pop SI
+    cmp BL, 0       
+    je PULA_VIDA_ATUAL
+    
+    ; testa a coluna
+    mov AX, [DI] ; posic da nave inimiga    
+    xor DX, DX
+    mov BX, 320
+    div BX      
+    mul BX
+    mov DX, AX
+    mov AX, [DI]
+    sub AX, DX
+    cmp AX, 15
+    jg PULA_VIDA_ATUAL
+   
+    mov AX, [DI] ; posic da nave inimiga
+    mov DX, [SI] ; posic da vida aliada
+    add DX, 2895
+    cmp AX, DX          ; Se ponto superior esquerdo da inimiga > inferior direito da vida
+    ja PULA_VIDA_ATUAL  ; sem colisao
+
+    mov AX, [DI] ; posic da nave inimiga
+    mov DX, [SI] ; posic da vida aliada
+    add AX, 2880
+    cmp AX, DX          ; Se ponto inferior esquerdo da inimiga > superior esquerdo da vida
+    jb PULA_VIDA_ATUAL  ; sem colisao
+    
+    ;colidiu
+    
+    mov AX, [DI]
+    call VIDA_COLISAO
+    pop CX
+    mov [DI], 0
+    jmp SAIR_COLISAO_VIDAS
+    
+PULA_VIDA_ATUAL:
+    add SI, 2
+    inc vida_testando
+    loop loop_vidas_testar
+    
+PROX_INIMIGA:
+    pop CX
+    add DI, 2
+    loop loop_vidas_inimigas
+
+SAIR_COLISAO_VIDAS:
+    
+    pop AX
+    pop SI
+    pop DX
+    pop CX
+    pop BX
+    ret
+
+endp
+
+;AX posic nave inimiga
+VIDA_COLISAO proc
+
+    xor DX, DX
+    mov BX, 320
+    div BX
+    
+    mov SI, vida_testando
+    mov [vidas + SI], 0
+    
+    xor SI, SI          ; Zera SI, necess?rio para a fun??o de desenho
+    xor BX, BX          ; Zera BX, que ser? usado para a cor
+    mov CX, 0
+    mov DX, AX
+    mov BL, -1      ; BL nao muda cor da nave inimiga
+    mov SI, offset blank_space   
+    call DESENHA_ELEMENTO_15X9   ; Chama a funcao para desenhar a nave
+    
+    dec inimigas_vivas_sector
+    inc naves_inimigas_restante_setor
+    
+    
+    ret
+
+endp
+
+GERAR_INIMIGO proc
+    push CX
+    push SI
+    push DI
+    push DX
+    push AX
+    push BX
+    
+    cmp naves_inimigas_restante_setor, 0
+    je SAIR_GERAR_INI
+    
+    mov CX, naves_set3
+    mov DI, offset naves_inimigas
+    
+loop_checa_posic: 
+    
+    mov BX, [DI] ; checa se pode salvar na posicao DI no vetor naves_inimigas
+    cmp BX, 0 
+    je SAIR_LOOP_CHECA_POSIC
+    add DI, 2
+    loop loop_checa_posic
+    jmp SAIR_GERAR_INI
+    
+    
+SAIR_LOOP_CHECA_POSIC:
+    
+    ; gerar num aleatorio para a coluna
+    mov BX, 161
+    mov CX, 300
+    call GERAR_NUM_ALEATORIO
+    mov nave_ini_coluna, AX ; coluna da nova nave inimiga
+    
+    ; gerar num aleatorio para a coluna
+    mov BX, 25
+    mov CX, 150
+    call GERAR_NUM_ALEATORIO
+    mov nave_ini_linha, AX ; linha onde a nave sera desenhada
+    
+    mov CX, nave_ini_coluna
+    mov DX, nave_ini_linha
+    mov AX, DX
+    mov BX, 320
+    mul BX
+    add AX, CX
+    
+    mov [DI], AX
+    
+    xor SI, SI          ; Zera SI, necess?rio para a fun??o de desenho
+    xor BX, BX          ; Zera BX, que ser? usado para a cor
+    mov CX, nave_ini_coluna
+    mov DX, nave_ini_linha
+    mov BL, -1      ; BL nao muda cor da nave inimiga
+    mov SI, offset nave_inimiga   
+    call DESENHA_ELEMENTO_15X9   ; Chama a funcao para desenhar a nave
+    dec naves_inimigas_restante_setor
+    inc inimigas_vivas_sector
+
+SAIR_GERAR_INI:
+    pop BX
+    pop AX
+    pop DX
+    pop DI
+    pop SI
+    pop CX
+    
+    ret
+endp
+
+; gerador de pseudo-random number
+; range de numeros entre [BX, CX]
+; algoritimo LCG (Linear congruential generator)
+; retorna em AX
+GERAR_NUM_ALEATORIO proc
+    push BX
+    push CX
+    push DX
+
+    mov AX, 25173          ; LCG Multiplier
+    mul word ptr [random_num_seed]     ; DX:AX = LCG multiplier * seed
+    add AX, 13849          ; Add LCG increment value
+    ; Modulo 65536, AX = (multiplier*seed+increment) mod 65536
+    mov [random_num_seed], AX          ; Update seed = return value
+    
+    ; Map AX into the desired range [min, max]
+    sub CX, BX             ; CX = max - min
+    inc CX                  ; CX = range_size
+
+    xor DX, DX              ; Clear DX for DIV operation
+    div CX                  ; AX = AX / range_size, DX = AX % range_size
+    mov AX, DX              ; AX = random_in_range (remainder)
+
+    add AX, BX             ; Adjust by the minimum value to get [min, max]
+
+    pop DX
+    pop CX
+    pop BX
+    
+    ret
+endp
 
 ; Funcao generica para desenhar objetos
 ; SI: Posicao desenho na memoria
@@ -1443,8 +1841,8 @@ INICIO:
     mov DS, AX
     mov ES, AX
     
-    call INICIA_VIDEO 
-    call DESENHA_MENU
+    call INICIA_VIDEO
+    call DESENHA_MENU 
     
     mov AH, 4Ch
     int 21h
