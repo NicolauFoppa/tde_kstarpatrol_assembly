@@ -196,7 +196,7 @@
     frame_time_test equ 25 ; alterar caso alterar frame time (deve ser = quantos 'frame_time' existem em 1s)
     
     sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
-    sector_temp_total equ 30 ; tempo em segundos de cada setor
+    sector_temp_total equ 5 ; tempo em segundos de cada setor
     sector_temp_str db 2 dup (?)
     tam_sector_temp_str equ $ - sector_temp_str
     
@@ -302,30 +302,30 @@ endp
 
 
 encerra proc
-    mov ah, 1h      ;muda configuaracao e
+    mov AH, 1h      ;muda configuaracao e
     int 16h         ;verifica se ha tecla no buffer quando entra
     jz acaba        ;se nao houver, pode encerrar
 limpeza:
-    xor ah,ah       ;se houver tecla no buffer, muda a configuracao e
+    xor AH,AH       ;se houver tecla no buffer, muda a configuracao e
     int 16h         ;limpa o buffer
-    mov ah, 1h      ;muda configuaracao e
+    mov AH, 1h      ;muda configuaracao e
     int 16h         ;verifica se ha mais uma tecla no buffer
     jz acaba        ;se nao houver, pode encerrar
     jmp limpeza     ;se houver, continua limpando o buffer
 
 acaba:
-    mov ah, 4ch     
+    mov AH, 4ch     
     int 21h         ;interrupcao para encerrar o programa
     ret
 endp 
 
 POS_CURSOR proc
-    push ax
-    push bx
-    mov ah, 02                   
+    push AX
+    push BX
+    mov AH, 02                   
     int 10h
-    pop bx
-    pop ax
+    pop BX
+    pop AX
     ret
 endp
 
@@ -997,46 +997,38 @@ continua_movimento:
     ret
 ENDP
 
-remapeia_cor_terreno proc
-                push ax
-                push bx
-                push cx
-                push si
-                push ds
+MUDA_COR_CENARIO proc
+    push AX
+    push BX
+    push CX
+    push SI
+    push DS
 
-                mov ax, @data
-                mov ds, ax
+    mov AX, @data
+    mov DS, AX
                 
-                ;posicao do sprite em si
-                mov cx, 480*20
+   ;posicao do sprite em si
+   mov CX, 480*20
 
-            substituir_cor_terreno:
-                lodsb              ; Carrega o byte apontado por DS:SI em AL e incrementa SI
-                cmp al, cor_troca          ; Compara o byte com 0
-                jnz proximo_byte_terreno    ; Se o byte for 0, pula para o pr??ximo
+subs_cor_cenario:
+    lodsb              
+    cmp AL, cor_troca          ; Compara o byte atual com a cor que precisa ser alterada
+    jnz proximo_byte_cenario    ; Se o byte for 0, pula para o pr??ximo
 
-                ; Substitui o byte por corObjetoTela se for maior que 0
-                mov [si-1], bl
-                jmp proximo_byte_terreno
+    ; Substitui o byte por corObjetoTela se for maior que 0
+    mov [SI-1], BL
+    
+    proximo_byte_cenario:
+    loop subs_cor_cenario
 
-                substituiLago:
-                    mov bl, 11 ; Cor para remapear
-                    mov [si-1], bl
-
-            proximo_byte_terreno:
-                ; Decrementa o contador de bytes e repete at?? o final
-                loop substituir_cor_terreno
-
-                ; Restaurar DS original
-                pop ds
-                pop si
-                pop cx
-                pop bx
-                pop ax
-        ret
-        endp
-
-
+    ; Restaurar DS original
+    pop DS
+    pop SI
+    pop CX
+    pop BX
+    pop AX
+    ret
+endp
 
 ; testar e mostrar se venceu ou perdeu. 
 ; deixar o usuario escolher se joga de novo ou sai
@@ -1047,7 +1039,7 @@ VENCEU_PERDEU proc
     xor BX, BX
     mov BL, 06H
     mov SI, OFFSET cenario
-    call remapeia_cor_terreno
+    call MUDA_COR_CENARIO
     
     
     cmp venceu, 1
@@ -1198,7 +1190,7 @@ PRINTA_SET_2:
     xor BX, BX
     mov BL, vermelho
     mov SI, OFFSET cenario
-    call remapeia_cor_terreno
+    call MUDA_COR_CENARIO
     mov [cor_troca], vermelho
     
     mov BP, OFFSET setor_2
@@ -1220,7 +1212,7 @@ PRINTA_SET_3:
     xor BX, BX
     mov BL, branco
     mov SI, offset cenario
-    call remapeia_cor_terreno
+    call MUDA_COR_CENARIO
     mov [cor_troca], branco
     
     mov BP, OFFSET setor_3
@@ -1245,117 +1237,118 @@ PRINTA_E_SAI:
     ret
 endp
 
-     apaga_tiro proc
-            push ax
-            push si
+APAGA_TIRO proc
+    push AX
+    push SI
 
-            mov BX, tiro_exist
+    mov BX, tiro_exist
 
-            mov DX, offset blank_space
-            mov BX, tiro_exist
-            call DESENHA_TIRO
+    mov DX, offset blank_space
+    mov BX, tiro_exist
+    call DESENHA_TIRO
 
-            pop si
-            pop ax
-        ret
-        endp 
+    pop SI
+    pop AX
+    ret
+endp 
 
 MOVE_NAVE_BAIXO proc
-    push ax
-    push bx
-    push cx
-    push si
-    push di
+    push AX
+    push BX
+    push CX
+    push SI
+    push DI
     
-    mov bx, nave_principal
+    mov BX, nave_principal
     
-    cmp bx, limite_inferior  ; Verifica se a nave atingiu o limite inferior
+    cmp BX, limite_inferior  ; Verifica se a nave atingiu o limite inferior
     jae FIM_MOVE_NAVE_BAIXO  ; Se j? atingiu o limite inferior, n?o move a nave
 
-    mov ax, memoria_video
-    mov ds, ax
+    mov AX, memoria_video
+    mov DS, AX
     
-    mov dx, 15         ; N?mero de linhas para mover
-    mov si, bx         
-    mov di, bx    
-    add di, velocidade_nave_principal       ; Move 5 linha para baixo
-    push di            ; Empilha para salvar a nova posi??o da nave
+    mov DX, 15         ; N?mero de linhas para mover
+    mov SI, BX         
+    mov DI, BX    
+    add DI, velocidade_nave_principal       ; Move 5 linha para baixo
+    push DI            ; Empilha para salvar a nova posi??o da nave
     
-    add di, 2880       ; inicio da ultima linha da nave
-    add si, 2880
+    add DI, 2880       ; inicio da ultima linha da nave
+    add SI, 2880
 MOVE_NAVE_BAIXO_LOOP:
-    mov cx, 15         ; Largura
+    mov CX, 15         ; Largura
     rep movsb          
-    dec dx             
-    sub di, 335        ; Proxima linha
-    sub si, 335        
-    cmp dx, 0         
+    dec DX             
+    sub DI, 335        ; Proxima linha
+    sub SI, 335        
+    cmp DX, 0         
     jnz MOVE_NAVE_BAIXO_LOOP
 
-    pop di            
-    mov bx, di         
+    pop DI            
+    mov BX, DI         
     
-    mov ax, @data
-    mov ds, ax
+    mov AX, @data
+    mov DS, AX
     
-    mov nave_principal, bx 
+    mov nave_principal, BX 
 
 FIM_MOVE_NAVE_BAIXO:
-    pop di
-    pop si
-    pop cx
-    pop bx
-    pop ax
+    pop DI
+    pop SI
+    pop CX
+    pop BX
+    pop AX
     ret
 endp
 
 MOVE_NAVE_CIMA proc
-    push ax
-    push bx
-    push cx
-    push si
-    push di
+    push AX
+    push BX
+    push CX
+    push SI
+    push DI
     
-    mov bx, nave_principal
+    mov BX, nave_principal
     
-    cmp bx, limite_superior
+    cmp BX, limite_superior
     jbe FIM_MOVE_NAVE_CIMA
     
-    mov ax, memoria_video
-    mov ds, ax
+    mov AX, memoria_video
+    mov DS, AX
     
-    mov dx, 15       ; Numero de linhas para mover
-    mov si, bx       
-    mov di, bx   
+    mov DX, 15       ; Numero de linhas para mover
+    mov SI, BX       
+    mov DI, BX   
     ;mov ax, velocidade_nave_principal
-    sub di, velocidade_nave_principal     ; Move x linhas para cima
-    push di          ; Empilha poder salvar a nova posi??o da nave
+    sub DI, velocidade_nave_principal     ; Move x linhas para cima
+    push DI          ; Empilha poder salvar a nova posi??o da nave
     
 MOVE_NAVE_CIMA_LOOP:
-    mov cx, 15       ; Largura
+    mov CX, 15       ; Largura
     rep movsb        
-    dec dx           
-    add di, 305      ; Pula para a linha anterior
-    add si, 305     
-    cmp dx, 0        
+    dec DX           
+    add DI, 305      ; Pula para a linha anterior
+    add SI, 305     
+    cmp DX, 0        
     jnz MOVE_NAVE_CIMA_LOOP
     
-    pop di           ; Desempilha a nova posi??o da nave
-    mov bx, di       ; Atualiza BX com a nova posi??o da nave
+    pop DI           ; Desempilha a nova posi??o da nave
+    mov BX, DI       ; Atualiza BX com a nova posi??o da nave
     
-    mov ax, @data
-    mov ds, ax
+    mov AX, @data
+    mov DS, AX
     
-    mov nave_principal, bx
+    mov nave_principal, BX
 
 FIM_MOVE_NAVE_CIMA:
-    pop di
-    pop si
-    pop cx
-    pop bx
-    pop ax
+    pop DI
+    pop SI
+    pop CX
+    pop BX
+    pop AX
     ret
 endp
+
 ATIRAR proc
     push AX
     push SI
@@ -1370,10 +1363,6 @@ ATIRAR proc
     mov BX, tiro_exist         ; Armazena a posi??o do tiro
     mov DX, offset tiro
     
-    ; Defina a posi??o inicial do tiro no gr?fico (BX ? a posi??o na tela)
-    ; Aqui voc? pode ajustar a posi??o horizontal (ex: nave no meio da tela)
-  
-
     ; Agora chamamos DESENHA_TIRO para desenhar o tiro na tela
     call DESENHA_TIRO          ; Desenha o tiro
 
@@ -1384,94 +1373,74 @@ retorna:
 endp
 
 DESENHA_TIRO proc
-    push ax
-    push bx
-    push cx
-    push dx
-    push di
-    push es
-    push ds
+    push AX
+    push BX
+    push CX
+    push DX
+    push DI
+    push ES
+    push DS
     
-    ; Carrega o segmento de dados
-    mov ax, @data
-    mov ds, ax
-
-    ; Carrega o segmento de mem?ria de v?deo (modo gr?fico 320x200)
-    mov ax, memoria_video
-    mov es, ax
-
-    ; BX cont?m a posi??o do tiro
-    mov di, BX               ; DI = Posi??o na tela (mem?ria de v?deo)
-
-    ; SI cont?m o endere?o da sprite do tiro
-    mov si, DX       ; SI aponta para a sprite do tiro (vetor de 15x9 pixels)
-
-    ; N?mero de linhas da sprite (altura da sprite)
-    mov dx, 9                 ; A sprite tem 9 linhas
+   
+    mov DI, BX               
+    mov SI, DX       
+    mov DX, 9          
 
 desenha_linha:
-    ; Define quantos bytes mover por linha (15 bytes por linha)
-    mov cx, 15
-
-    ; Copiar 15 bytes da sprite para a mem?ria de v?deo
+    mov CX, 15
     rep movsb
-
-    ; Ajustar o ponteiro de destino para a pr?xima linha (avan?a 320 bytes)
-    ; Isso ? feito somando 320 - 15 bytes (para corrigir a largura da tela)
-    add di, 320 - 15
-
-    ; Diminuir o contador de linhas e repetir
-    dec dx
+    add DI, 305
+    dec DX
     jnz desenha_linha
 
     ; Restaurar DS original
-    pop ds  
-    pop es
-    pop di
-    pop dx
-    pop cx
-    pop bx
-    pop ax
+    pop DS  
+    pop ES
+    pop DI
+    pop DX
+    pop CX
+    pop BX
+    pop AX
     ret
 endp
 
-   MOVIMENTA_TIRO proc
-            push ax 
+MOVIMENTA_TIRO proc
+    push AX 
             
-            call CHECA_COLISAO_TIRO
-            xor ax,ax
-            mov ax, tiro_exist
-            cmp ax, 0
-            je semTiro
+    call CHECA_COLISAO_TIRO
+    xor AX, AX
+    mov AX, tiro_exist
+    cmp AX, 0
+    je semTiro
 
-                xor bx,bx
-                call apaga_tiro
-                xor ax,ax
-                mov ax, tiro_desl
-                cmp ax, 240
-                jge parede1          
-                xor ax,ax
-                mov ax, tiro_exist
-                add ax, 8
-                mov tiro_exist, ax 
-                mov DX, offset tiro
-                mov BX, tiro_exist
-                call DESENHA_TIRO
-                xor ax,ax
-                mov ax, tiro_desl
-                add ax, 8
-                mov tiro_desl, ax        
+    xor BX, BX
+    call APAGA_TIRO
+    xor AX,AX
+    mov AX, tiro_desl
+    cmp AX, 240
+    jge CHEGOU_FINAL          
+    xor ax,ax
+    mov ax, tiro_exist
+    add ax, 8
+    mov tiro_exist, ax 
+    mov DX, offset tiro
+    mov BX, tiro_exist
+    call DESENHA_TIRO
+    xor AX,AX
+    mov AX, tiro_desl
+    add AX, 8
+    mov tiro_desl, AX        
             
-            jmp semTiro
+    jmp semTiro
             
-            parede1:
-            mov tiro_exist, 0
-                mov tiro_desl, 0
+CHEGOU_FINAL:
+    mov tiro_exist, 0
+    mov tiro_desl, 0
 
-            semTiro:
-            pop ax
-        ret
-        endp
+    semTiro:
+    pop AX
+    ret
+endp
         
 DESENHA_NAVE_ALIADA proc
     
@@ -1545,8 +1514,8 @@ APERTOU_ESPACO:
     call ATIRAR
     
 REPE_JOGO:
-    xor cx, cx
-    mov dx, frame_time
+    xor CX, CX
+    mov DX, frame_time
     call SLEEP
     
     inc contador_frames
@@ -1554,18 +1523,16 @@ REPE_JOGO:
     cmp contador_frames, frame_time_test
     jne JMP_JOGO
 
-    
-    call GERAR_INIMIGO
-    call MOVE_ELEMENTOS
-    call CHECA_COLISAO_TIRO
-    call CHECA_COLISAO_NAVE_PRIN
-    call CHECA_COLISAO_VIDAS
-    
     mov contador_frames, 0
     dec cronometro_sector
     cmp cronometro_sector, 0
     je PROXIMO_SETOR
     
+    call CHECA_COLISAO_TIRO
+    call CHECA_COLISAO_NAVE_PRIN
+    call CHECA_COLISAO_VIDAS
+    call GERAR_INIMIGO
+    call MOVE_ELEMENTOS
    
 JMP_JOGO: 
     
@@ -1574,9 +1541,9 @@ JMP_JOGO:
 endp
 
 MOVE_ELEMENTOS proc
-    push ax
-    push dx
-    push cx
+    push AX
+    push DX
+    push CX
     
     call MOVIMENTA_CENARIO
     call MOVIMENTA_TIRO
@@ -1584,9 +1551,9 @@ MOVE_ELEMENTOS proc
     
 SAIR_MOVE_ELEMENTOS:
 
-    pop cx
-    pop dx
-    pop ax
+    pop CX
+    pop DX
+    pop AX
 
     ret
 
@@ -1735,12 +1702,12 @@ loop_tiro_inimigas:
 
     push CX ; Salvar o contador de loop das naves inimigas
 
-    mov AX, [DI] ; Posição da nave inimiga
-    cmp AX, 0    ; Nave já destruída?
+    mov AX, [DI] ; Posi??o da nave inimiga
+    cmp AX, 0    ; Nave j? destru?da?
     je PROXIMA_INIMIGA
 
-    ; Comparar posição da nave com a posição do tiro
-    mov SI, tiro_exist ; Carregar posição do tiro
+    ; Comparar posi??o da nave com a posi??o do tiro
+    mov SI, tiro_exist ; Carregar posi??o do tiro
     
     mov AX, [DI] ; posic da nave inimiga
     mov DX, SI ; posic da vida aliada
@@ -1758,7 +1725,7 @@ loop_tiro_inimigas:
 
     ; Colidiu
    
-    call apaga_tiro
+    call APAGA_TIRO
     mov tiro_exist, 0
     add pont_total, 100
     mov BX, inimigas_vivas_sector
@@ -1769,7 +1736,7 @@ loop_tiro_inimigas:
 
 PROXIMA_INIMIGA:
     pop CX
-    add DI, 2 ; Próxima nave inimiga
+    add DI, 2 ; Pr?xima nave inimiga
     loop loop_tiro_inimigas
 
 SAIR_COLISAO_TIRO:
@@ -2245,7 +2212,7 @@ DESENHA_COM_COR:
 DESENHA_ELEMENTO_LOOP:
     mov CX, BX                
     rep movsb                 
-    add DI, 320 - 15          ; move DI para o in?cio da pr?xima linha (offset de 320 menos 15 pixels desenhados)
+    add DI, 305          ; move DI para o in?cio da pr?xima linha (offset de 320 menos 15 pixels desenhados)
     dec DX                    
     jnz DESENHA_ELEMENTO_LOOP 
 
