@@ -30,7 +30,7 @@
     
     nave_principal dw ?
     cor_nave_principal db branco
-    velocidade_nave_principal equ 640 ; 2 linhas por vez
+    velocidade_nave_principal equ 1600 ; 5 linhas por vez (320 * 5)
     
     vidas db 1
           db 1
@@ -196,7 +196,7 @@
     frame_time_test equ 25 ; alterar caso alterar frame time (deve ser = quantos 'frame_time' existem em 1s)
     
     sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
-    sector_temp_total equ 5 ; tempo em segundos de cada setor
+    sector_temp_total equ 30 ; tempo em segundos de cada setor
     sector_temp_str db 2 dup (?)
     tam_sector_temp_str equ $ - sector_temp_str
     
@@ -223,6 +223,8 @@
     vida_testando dw ?
     
     cor_troca db 0
+    
+    coluna_testando db ?
     
 .code 
 
@@ -1407,7 +1409,6 @@ endp
 MOVIMENTA_TIRO proc
     push AX 
             
-    call CHECA_COLISAO_TIRO
     xor AX, AX
     mov AX, tiro_exist
     cmp AX, 0
@@ -1429,7 +1430,8 @@ MOVIMENTA_TIRO proc
     xor AX,AX
     mov AX, tiro_desl
     add AX, 8
-    mov tiro_desl, AX        
+    mov tiro_desl, AX
+    call CHECA_COLISAO_TIRO    
             
     jmp semTiro
             
@@ -1528,11 +1530,11 @@ REPE_JOGO:
     cmp cronometro_sector, 0
     je PROXIMO_SETOR
     
-    call CHECA_COLISAO_TIRO
-    call CHECA_COLISAO_NAVE_PRIN
-    call CHECA_COLISAO_VIDAS
+    ;call CHECA_COLISAO_TIRO
+    ;call CHECA_COLISAO_NAVE_PRIN
+    ;call CHECA_COLISAO_VIDAS
     call GERAR_INIMIGO
-    call MOVE_ELEMENTOS
+    ;call MOVE_ELEMENTOS
    
 JMP_JOGO: 
     
@@ -1670,6 +1672,9 @@ prox_inimigo:
     add DI, 2
     loop loop_movimenta_ini
     
+    call CHECA_COLISAO_NAVE_PRIN
+    call CHECA_COLISAO_VIDAS
+    
 sair_mover_ini:
     pop SI
     pop DX
@@ -1700,8 +1705,6 @@ CHECA_COLISAO_TIRO proc
 
 loop_tiro_inimigas:
 
-    push CX ; Salvar o contador de loop das naves inimigas
-
     mov AX, [DI] ; Posi??o da nave inimiga
     cmp AX, 0    ; Nave j? destru?da?
     je PROXIMA_INIMIGA
@@ -1709,33 +1712,40 @@ loop_tiro_inimigas:
     ; Comparar posi??o da nave com a posi??o do tiro
     mov SI, tiro_exist ; Carregar posi??o do tiro
     
+     ; testar coluna da nave inimiga (em AX)
+    call OBTER_COLUNA_ELEMENTO
+    mov BX, AX ; coluna NAVE INIMIGA
+    mov AX, SI
+    call OBTER_COLUNA_ELEMENTO ; coluna TIRO
+    add AX, 15 
+    cmp BX, AX ; BX = coluna NAVE INIMIGA, AX = coluna TIRO + 15
+    jg PROXIMA_INIMIGA 
+    sub AX, 30 
+    cmp BX, AX ; (coluna TIRO + 15) - 30
+    jl PROXIMA_INIMIGA 
+    
     mov AX, [DI] ; posic da nave inimiga
-    mov DX, SI ; posic da vida aliada
+    mov DX, SI ; posic do tiro
     add DX, 2895
     cmp AX, DX          ; Se ponto superior esquerdo da inimiga > inferior direito da vida
     ja PROXIMA_INIMIGA  ; sem colisao
 
     mov AX, [DI] ; posic da nave inimiga
-    mov DX, SI ; posic da vida aliada
+    mov DX, SI ; posic do tiro
     add AX, 2880
     cmp AX, DX          ; Se ponto inferior esquerdo da inimiga > superior esquerdo da vida
     jb PROXIMA_INIMIGA  ; sem colisao
-    
-
 
     ; Colidiu
-   
     call APAGA_TIRO
     mov tiro_exist, 0
     add pont_total, 100
     mov BX, inimigas_vivas_sector
     call LIMPAR_NAVE_INIMIGA
 
-    pop CX
     jmp SAIR_COLISAO_TIRO
 
 PROXIMA_INIMIGA:
-    pop CX
     add DI, 2 ; Pr?xima nave inimiga
     loop loop_tiro_inimigas
 
@@ -1748,48 +1758,6 @@ SAIR_COLISAO_TIRO:
     pop BX
     ret
 
-endp
-
-
-VERIFICA_COLISAO proc
-
-    push AX 
-    push BX 
-    push CX
-    push DX
-    
-    add CX, 15
-    cmp CX, AX
-    jng NAO_COLIDIU
-    sub CX, 15
-    
-    add AX, 15
-    cmp CX, AX
-    jnl NAO_COLIDIU
-    
-    add DX, 9
-    cmp DX, BX
-    jng NAO_COLIDIU
-    sub DX, 9
-    
-    add BX, 9
-    cmp DX, BX
-    jnl NAO_COLIDIU
-    
-    mov SI, 1 ; se SI == 1, houve uma colisao, se SI == 0, nao houve colisao
-    jmp FINAL_COLISAO
-    
-    NAO_COLIDIU:
-    xor SI, SI
-    
-    FINAL_COLISAO:
-    
-    pop DX
-    pop CX
-    pop BX
-    pop AX
-    
-    ret
 endp
 
 ; [DI] o offset da nave_inimiga
