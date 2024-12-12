@@ -154,26 +154,26 @@
                   db 0,0,0,0,0,0,0,0,0,9,9,0,0,0,0
                   db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
     
-       cenario db 55 dup(0H), 23 dup(06H), 46 dup(0H), 21 dup(06H), 37 dup(0H), 21 dup(06H), 112 dup(0H), 21 dup(06H), 31 dup(0H), 21 dup(06H), 28 dup(0H), 21 dup(06H), 43 dup(0H)  
-            db 30 dup(0H), 9 dup(06H), 23 dup(0H), 15 dup(06H), 31 dup(0H), 10 dup(06H), 25 dup(0H), 10 dup(06H), 32 dup(0H), 11 dup(06H), 131 dup(0H), 9 dup(06H), 12 dup(0H), 10 dup(06H), 34 dup(0H), 10 dup(06H), 17 dup(0H), 8 dup(06H), 15 dup(0H), 9 dup(06H), 29 dup(0H)  
-            db 27 dup(0H), 9 dup(06H), 17 dup(0H), 18 dup(06H), 25 dup(0H), 9 dup(06H), 15 dup(0H), 7 dup(06H), 8 dup(0H), 9 dup(06H), 25 dup(0H), 15 dup(06H), 25 dup(0H), 6 dup(06H),7 dup(0H), 6 dup(06H), 24 dup(0H), 6 dup(06H), 78 dup(0H), 10 dup(06H), 8 dup(0H), 8 dup(06H), 25 dup(0H), 8 dup(06H), 8 dup(0H), 10 dup(06H), 13 dup(0H), 8 dup(06H), 11 dup(0H), 11 dup(06H), 24 dup(0bH)        
-            db 26 dup(0bH), 13 dup(06H), 16 dup(0H), 23 dup(06H), 24 dup(0bH), 13 dup(06H), 13 dup(0H), 24 dup(06H), 17 dup(0H), 23 dup(06H), 19 dup(0H), 17 dup(06H), 23 dup(0bH), 10 dup(06H), 74 dup(0bH), 18 dup(06H), 8 dup(0H), 16 dup(06H), 18 dup(0bH), 35 dup(06H), 9 dup(0H), 18 dup(06H), 23 dup(0bH)      
-            db 31 dup(0bH), 52 dup(06H), 25 dup(0bH), 98 dup(06H), 28 dup(0bH), 21 dup(06H), 78 dup(0bH), 38 dup(06H), 20 dup(0bH), 61 dup(06H), 28 dup(0bH)     
-            db 73 dup(06H), 24 dup(0bH), 104 dup(06H), 29 dup(0bH), 29 dup(06H), 71 dup(0bH), 51 dup(06H), 21 dup(0bH), 78 dup(06H) 
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
-            db 480 dup(06H)
+       cenario db 3 dup(06H), 18 dup(0H), 3 dup(06H), 16 dup(0H), 06H, 92 dup(0H), 06H, 56 dup(0H), 2 dup(06H), 36 dup(0H), 3 dup(06H), 94 dup(0H), 2 dup(06H), 21 dup(0H), 4 dup(06H), 38 dup(0H), 2 dup(06H), 35 dup(0H), 2 dup(06H), 28 dup(0H), 4 dup(06H), 18 dup(0H), 06H
+                  db 4 dup(06H), 17 dup(09H), 3 dup(06H), 16 dup(0h), 2 dup(06H), 44 dup(0H), 2 dup(06H), 14 dup(0H), 9 dup(06H), 20 dup(0H), 4 dup(06H), 52 dup(0H), 7 dup(06H), 34 dup(0H), 3 dup(06H), 94 dup(0H), 2 dup(06H), 18 dup(0H),  7 dup(06H), 36 dup(0H), 5 dup(06H), 33 dup(0H), 3 dup(06H), 26 dup(0H), 7 dup(06H), 16 dup(0H), 2 dup(06H)
+                  db 6 dup(06H), 14 dup(09H), 4 dup(06H), 15 dup(0H), 3 dup(06H), 42 dup(0H), 5 dup(06H), 11 dup(09H), 13 dup(06H), 16 dup (0H), 7 dup(06H), 51 dup(0H), 8 dup(06H), 32 dup(0H), 5 dup(06H), 93 dup(0H), 2 dup(06H), 17 dup(0H), 9 dup(06H), 34 dup(0H), 7 dup(06H), 30 dup(0H), 6 dup(06H), 22 dup(0H), 11 dup(06H), 14 dup(0H), 3 dup(06H)
+                          db 7 dup(06H), 8 dup(09H), 8 dup(06H), 13 dup(09H), 6 dup(06H), 27 dup(09H), 4 dup(06H), 9 dup(0H), 6 dup(06H), 10 dup(09H), 15 dup(06H), 15 dup(0H), 9 dup(06H), 49 dup(0H), 11 dup(06H), 28 dup(0H), 7 dup(06H), 81 dup(0H), 5 dup(06H), 5 dup(0H), 4 dup(06H), 15 dup(0H), 11 dup(06H), 32 dup(0H), 10 dup(06H),  26 dup(0H), 9 dup(06H), 21 dup(0H), 13 dup(06H),  13 dup(0H), 3 dup(06H)
+                          db 9 dup(06H), 7 dup(09H), 10 dup(06H), 10 dup(09H), 8 dup(06H), 26 dup(09H), 5 dup(06H), 7 dup(0H), 8 dup(06H), 8 dup(09H), 20 dup(06H), 10 dup(09H), 12 dup(06H), 46 dup(0H), 14 dup(06H),  21 dup(0H), 14 dup(06H), 77 dup(0H), 7 dup(06H), 5 dup(0H), 5 dup(06H), 13 dup(09H), 13 dup(06H), 30 dup(0H), 12 dup(06H), 24 dup(09H), 11 dup(06H), 20 dup(0H), 14 dup(06H), 11 dup(0H), 3 dup(06H)
+                          db 26 dup(06H), 9 dup(09H), 9 dup(06H), 23 dup(09H), 9 dup(06H), 4 dup(0H), 10 dup(06H), 6 dup(09H), 23 dup(06H), 8 dup(09H), 22 dup(06H), 35 dup(0H), 16 dup(06H), 19 dup(0H), 17 dup(06H), 23 dup(0H), 10 dup(06H), 15 dup(0H), 4 dup(06H), 22 dup(0H), 8 dup(06H), 4 dup(0H), 7 dup(06H), 14 dup(09H), 11 dup(06H), 30 dup(0H), 12 dup(06H), 23 dup(09H), 11 dup(06H), 20 dup(09H), 15 dup(06H), 9 dup(0H), 6 dup(06H)
+                          db 27 dup(06H), 8 dup(09H), 10 dup(06H), 22 dup(09H), 11 dup(06H), 3 dup(0H), 11 dup(06H), 3 dup(09H), 28 dup(06H), 4 dup(09H), 24 dup(06H), 7 dup(09H), 5 dup(06H), 21 dup(0H), 19 dup(06H), 16 dup(0H), 19 dup(06H), 22 dup(0H), 11 dup(06H), 11 dup(06H), 8 dup(06H), 21 dup(0H), 8 dup(06H), 4 dup(0H), 7 dup(06H), 14 dup(09H), 13 dup(06H), 27 dup(06H), 16 dup(06H), 21 dup(09H), 12 dup(06H), 19 dup(09H), 15 dup(06H), 8 dup(0H), 5 dup(06H)
+                          db 30 dup(06H), 3 dup(09H), 14 dup(06H), 2 dup(09H), 6 dup(06H), 3 dup(09H), 6 dup(06H), 2 dup(09H), 98 dup(06H), 18 dup(0H), 22 dup(06H), 15 dup(09H), 22 dup(06H), 19 dup(0H), 12 dup(06H), 7 dup(09H), 12 dup(06H), 19 dup(0H), 8 dup(06H), 4 dup(0H), 9 dup(06H), 11 dup(09H), 15 dup(06H), 26 dup(0H), 18 dup(06H), 19 dup(09H), 14 dup(06H), 18 dup(09H), 16 dup(06H), 5 dup(0H), 7 dup(06H)
+                          db 165 dup(06H), 14 dup(0H), 28 dup(06H), 13 dup(09H), 23 dup(06H), 17 dup(0H), 14 dup(06H), 5 dup(09H), 14 dup(06H), 16 dup(0H), 10 dup(06H), 3 dup(0H), 12 dup(06H), 5 dup(09H), 19 dup(06H), 22 dup(0H), 20 dup(06H), 17 dup(09H), 17 dup(06H), 18 dup(09H), 28 dup(06H)
+                          db 166 dup(06H), 12 dup(09H), 33 dup(06H), 9 dup(09H), 24 dup(06H), 15 dup(0H), 18 dup(06H), 09H, 19 dup(06H), 11 dup(0H), 50 dup(06H), 6 dup(09H), 4 dup(06H), 9 dup(0H), 27 dup(06H), 11 dup(09H), 20 dup(06H), 7 dup(09H), 4 dup(06H), 7 dup(09H), 27 dup(06H)
+                          db 168 dup(06H), 10 dup(09H), 34 dup(06H), 8 dup(09H), 26 dup(06H), 12 dup(0H), 41 dup(06H), 8 dup(0H), 53 dup(06H), 3 dup(09H), 8 dup(06H), 5 dup(0H), 29 dup(06H), 8 dup(09H), 23 dup(06H), 4 dup(09H), 8 dup(06H), 5 dup(09H), 27 dup(06H)
+                          db 170 dup(06H), 6 dup(09H), 36 dup(06H), 8 dup(09H), 29 dup(06H), 8 dup(0H), 45 dup(06H), 4 dup(0H), 100 dup(06H), 7 dup(09H), 24 dup(06H), 2 dup(09H), 12 dup(06H), 2 dup(09H), 27 dup(06H)
+                          db 172 dup(06H), 09H, 40 dup(06H), 6 dup(09H), 34 dup(06H), 3 dup(0H), 151 dup(06H), 2 dup(09H), 71 dup(06H)
+                          db 216 dup(06H), 2 dup(09H), 262 dup(06H)
+                          db 480 dup(06H)
+                          db 480 dup(06H)
+                          db 480 dup(06H)
+                          db 480 dup(06H)
+                          db 480 dup(06H)
+                          db 480 dup(06H)
 
             
     blank_space db 135 dup(0)
@@ -221,6 +221,8 @@
     nave_ini_linha dw ?
     
     vida_testando dw ?
+    
+    cor_troca db 0
     
 .code 
 
@@ -875,7 +877,7 @@ DESENHA_HEADER proc
     
     mov BP, OFFSET tempo
     mov DH, 0
-    mov DL, 31
+    mov DL, 30
     mov CX, 7
     mov BL, branco
     call ESCREVE_STRING
@@ -887,7 +889,7 @@ DESENHA_HEADER proc
     
     mov BP, OFFSET sector_temp_str
     mov DH, 0
-    mov DL, 37
+    mov DL, 36
     mov CX, tam_sector_temp_str
     mov BL, verde_claro
     call ESCREVE_STRING
@@ -943,70 +945,38 @@ PULA_LOOP_VIDAS:
 endp
 
 DESENHA_CENARIO proc
+    push ax
+    push cx
+    push dx
+    push si
+    push di
+
     mov ax, memoria_video       ; Segmento de mem?ria de v?deo (modo gr?fico 13h)
     mov es, ax                  ; Aponta ES para o segmento de v?deo
 
-    mov si, offset cenario      ; Aponta SI para o in?cio do vetor cenario
-    add si, desloc_cen          ; Desloca o ponteiro para o valor correto do cen?rio
-
-    cmp tela_atual, 1           ; Se tela_atual == 1, imprime o cen?rio original
-    je PRINTA_CENARIO
-
-    cmp tela_atual, 2           ; Se tela_atual == 2, altera a cor para um valor diferente
-    je ALTERA_COR_CENARIO_2
-
-    cmp tela_atual, 3           ; Se tela_atual == 3, altera a cor para outro valor
-    je ALTERA_COR_CENARIO_3
+    mov si, offset cenario      ; Aponta SI para o in?cio do vetor `cenario`
+    add si, desloc_cen          ; Aplica o deslocamento para o cen?rio
 
 PRINTA_CENARIO:
-    mov di, 57920
-    mov dx, 20
+    mov di, 57920               ; Offset inicial na mem?ria de v?deo
+    mov dx, 20                  ; N?mero de linhas a desenhar
 desenha_linha_ter:
-    mov cx, 320
-    rep movsb
-    
-    add si, 160
-    dec dx
-    jnz desenha_linha_ter
+    mov cx, 320                 ; N?mero de pixels por linha
+    rep movsb                   ; Copia a linha do cen?rio para a tela
+
+    add si, 160                 ; Avan?a o ponteiro no cen?rio para a pr?xima linha
+    dec dx                      ; Decrementa o contador de linhas
+    jnz desenha_linha_ter       ; Continua enquanto houver linhas a desenhar
+
+END_PROC:
+    pop di
+    pop si
+    pop dx
+    pop cx
+    pop ax
     ret
-    
-DRAW_LOOP:
-    lodsb                       ; Carrega o pr?ximo byte de DS:SI (vetor 'cenario') no AL
-    stosb                       ; Armazena o valor de AL diretamente em ES:DI (pixel na tela)
-    loop DRAW_LOOP              ; Repete at? desenhar todos os pixels
-    ret
-
-ALTERA_COR_CENARIO_2:
-    mov di, 57920               ; Offset na mem?ria de v?deo
-    mov cx, 6400                ; N?mero de pixels
-    mov bl, 04h                 ; Nova cor (exemplo: 04h - vermelho claro)
-
-CHANGE_COLOR_LOOP_2:
-    lodsb                       ; Carrega o pr?ximo byte de DS:SI
-    cmp al, 06h                 ; Verifica se o pixel atual tem a cor 06h (por exemplo, cor do cen?rio)
-    jne SKIP_COLOR_CHANGE_2     ; Se n?o for a cor 06h, pula a altera??o
-    mov al, bl                  ; Altera a cor para 04h (vermelho claro)
-SKIP_COLOR_CHANGE_2:
-    stosb                       ; Escreve o valor atualizado (ou original) em ES:DI
-    loop CHANGE_COLOR_LOOP_2    ; Repete o loop at? processar todos os pixels
-    ret
-
-ALTERA_COR_CENARIO_3:
-    mov di, 57920               ; Offset na mem?ria de v?deo
-    mov cx, 6400                ; N?mero de pixels
-    mov bl, 0Ah                 ; Nova cor (exemplo: 0Ah - verde claro)
-
-CHANGE_COLOR_LOOP_3:
-    lodsb                       ; Carrega o pr?ximo byte de DS:SI
-    cmp al, 06h                 ; Verifica se o pixel atual tem a cor 06h
-    jne SKIP_COLOR_CHANGE_3     ; Se n?o for a cor 06h, pula a altera??o
-    mov al, bl                  ; Altera a cor para 0Ah (verde claro)
-SKIP_COLOR_CHANGE_3:
-    stosb                       ; Escreve o valor atualizado (ou original) em ES:DI
-    loop CHANGE_COLOR_LOOP_3    ; Repete o loop at? processar todos os pixels
-    ret
-
 ENDP
+
 
 MOVIMENTA_CENARIO proc
     push AX
@@ -1015,7 +985,7 @@ MOVIMENTA_CENARIO proc
     xor AX, AX
     add desloc_cen, 3           ; Incrementa o deslocamento em 2 (movimento horizontal)
 
-    cmp desloc_cen, 320         ; Se desloc_cen >= 320, reseta o cen?rio
+    cmp desloc_cen, 480         ; Se desloc_cen >= 320, reseta o cen?rio
     jl continua_movimento       ; Se desloc_cen < 320, continua o movimento
 
     mov desloc_cen, 0           ; Reseta o deslocamento ao ultrapassar o limite
@@ -1027,11 +997,58 @@ continua_movimento:
     ret
 ENDP
 
+remapeia_cor_terreno proc
+                push ax
+                push bx
+                push cx
+                push si
+                push ds
+
+                mov ax, @data
+                mov ds, ax
+                
+                ;posicao do sprite em si
+                mov cx, 480*20
+
+            substituir_cor_terreno:
+                lodsb              ; Carrega o byte apontado por DS:SI em AL e incrementa SI
+                cmp al, cor_troca          ; Compara o byte com 0
+                jnz proximo_byte_terreno    ; Se o byte for 0, pula para o pr??ximo
+
+                ; Substitui o byte por corObjetoTela se for maior que 0
+                mov [si-1], bl
+                jmp proximo_byte_terreno
+
+                substituiLago:
+                    mov bl, 11 ; Cor para remapear
+                    mov [si-1], bl
+
+            proximo_byte_terreno:
+                ; Decrementa o contador de bytes e repete at?? o final
+                loop substituir_cor_terreno
+
+                ; Restaurar DS original
+                pop ds
+                pop si
+                pop cx
+                pop bx
+                pop ax
+        ret
+        endp
+
+
+
 ; testar e mostrar se venceu ou perdeu. 
 ; deixar o usuario escolher se joga de novo ou sai
 VENCEU_PERDEU proc
 
     call LIMPAR_TELA
+    
+    xor BX, BX
+    mov BL, 06H
+    mov SI, OFFSET cenario
+    call remapeia_cor_terreno
+    
     
     cmp venceu, 1
     jne GAME_OVER_
@@ -1173,9 +1190,16 @@ PRINTA_SET_2:
     
     mov naves_inimigas_restante_setor, naves_set2 
     
-    mov AX, 1000
+     mov AX, 1000
     mov BX, 10
     call CALCULA_BONUS_SETOR
+    
+    mov [cor_troca], 06H
+    xor BX, BX
+    mov BL, vermelho
+    mov SI, OFFSET cenario
+    call remapeia_cor_terreno
+    mov [cor_troca], vermelho
     
     mov BP, OFFSET setor_2
     mov BL, azul_claro
@@ -1185,9 +1209,20 @@ PRINTA_SET_3:
     
     mov naves_inimigas_restante_setor, naves_set3
     
-    mov AX, 2000
+    mov [cor_troca], vermelho
+   
+    
+     mov AX, 2000
     mov BX, 20
     call CALCULA_BONUS_SETOR
+    
+   
+    xor BX, BX
+    mov BL, branco
+    mov SI, offset cenario
+    call remapeia_cor_terreno
+    mov [cor_troca], branco
+    
     mov BP, OFFSET setor_3
     mov BL, magenta_claro
     
@@ -1402,6 +1437,8 @@ endp
 
    MOVIMENTA_TIRO proc
             push ax 
+            
+            call CHECA_COLISAO_TIRO
             xor ax,ax
             mov ax, tiro_exist
             cmp ax, 0
@@ -1516,11 +1553,7 @@ REPE_JOGO:
     call MOVE_ELEMENTOS
     cmp contador_frames, frame_time_test
     jne JMP_JOGO
-    
-    mov contador_frames, 0
-    dec cronometro_sector
-    cmp cronometro_sector, 0
-    je PROXIMO_SETOR
+
     
     call GERAR_INIMIGO
     call MOVE_ELEMENTOS
@@ -1528,6 +1561,12 @@ REPE_JOGO:
     call CHECA_COLISAO_NAVE_PRIN
     call CHECA_COLISAO_VIDAS
     
+    mov contador_frames, 0
+    dec cronometro_sector
+    cmp cronometro_sector, 0
+    je PROXIMO_SETOR
+    
+   
 JMP_JOGO: 
     
     jmp LOOP_JOGO
@@ -1539,7 +1578,7 @@ MOVE_ELEMENTOS proc
     push dx
     push cx
     
-    ;call MOVIMENTA_CENARIO
+    call MOVIMENTA_CENARIO
     call MOVIMENTA_TIRO
     call MOVIMENTA_INIMIGOS
     
@@ -1657,6 +1696,7 @@ mover_inimigo:
     inc naves_inimigas_restante_setor
     inc inimigas_escaparam_sector
     
+    
     pop CX
     
 prox_inimigo:
@@ -1674,10 +1714,115 @@ sair_mover_ini:
 endp
 
 CHECA_COLISAO_TIRO proc
+    push BX
+    push CX
+    push DX
+    push SI
+    push AX
+
+    mov CX, inimigas_vivas_sector
+    cmp CX, 0
+    je SAIR_COLISAO_TIRO
+
+    ; Verifica se existe tiro
+    mov AX, tiro_exist
+    cmp AX, 0
+    je SAIR_COLISAO_TIRO
+
+    mov DI, offset naves_inimigas
+
+loop_tiro_inimigas:
+
+    push CX ; Salvar o contador de loop das naves inimigas
+
+    mov AX, [DI] ; Posição da nave inimiga
+    cmp AX, 0    ; Nave já destruída?
+    je PROXIMA_INIMIGA
+
+    ; Comparar posição da nave com a posição do tiro
+    mov SI, tiro_exist ; Carregar posição do tiro
+    
+    mov AX, [DI] ; posic da nave inimiga
+    mov DX, SI ; posic da vida aliada
+    add DX, 2895
+    cmp AX, DX          ; Se ponto superior esquerdo da inimiga > inferior direito da vida
+    ja PROXIMA_INIMIGA  ; sem colisao
+
+    mov AX, [DI] ; posic da nave inimiga
+    mov DX, SI ; posic da vida aliada
+    add AX, 2880
+    cmp AX, DX          ; Se ponto inferior esquerdo da inimiga > superior esquerdo da vida
+    jb PROXIMA_INIMIGA  ; sem colisao
+    
 
 
+    ; Colidiu
+   
+    call apaga_tiro
+    mov tiro_exist, 0
+    add pont_total, 100
+    mov BX, inimigas_vivas_sector
+    call LIMPAR_NAVE_INIMIGA
+
+    pop CX
+    jmp SAIR_COLISAO_TIRO
+
+PROXIMA_INIMIGA:
+    pop CX
+    add DI, 2 ; Próxima nave inimiga
+    loop loop_tiro_inimigas
+
+SAIR_COLISAO_TIRO:
+
+    pop AX
+    pop SI
+    pop DX
+    pop CX
+    pop BX
     ret
 
+endp
+
+
+VERIFICA_COLISAO proc
+
+    push AX 
+    push BX 
+    push CX
+    push DX
+    
+    add CX, 15
+    cmp CX, AX
+    jng NAO_COLIDIU
+    sub CX, 15
+    
+    add AX, 15
+    cmp CX, AX
+    jnl NAO_COLIDIU
+    
+    add DX, 9
+    cmp DX, BX
+    jng NAO_COLIDIU
+    sub DX, 9
+    
+    add BX, 9
+    cmp DX, BX
+    jnl NAO_COLIDIU
+    
+    mov SI, 1 ; se SI == 1, houve uma colisao, se SI == 0, nao houve colisao
+    jmp FINAL_COLISAO
+    
+    NAO_COLIDIU:
+    xor SI, SI
+    
+    FINAL_COLISAO:
+    
+    pop DX
+    pop CX
+    pop BX
+    pop AX
+    
+    ret
 endp
 
 ; [DI] o offset da nave_inimiga
