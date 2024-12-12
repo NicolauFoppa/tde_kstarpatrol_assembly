@@ -142,8 +142,6 @@
            db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
            db 0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0Fh,0,0,0,0,0,0
                  
-     tam_nave EQU $ - nave_aliada
-                 
      nave_inimiga db 0,0,0,0,0,0,0,0,0,9,9,9,9,9,9
                   db 0,0,0,0,0,0,0,0,0,9,9,0,0,0,0
                   db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -189,14 +187,12 @@
     
     opc_selecionada db 0 ; utilizado no contexto do menu, 0 -> Jogar, 1 -> Sair
     tela_atual db 0 ; 0 -> menu, 1 -> setor 1, 2 -> setor 2, 3 -> setor 3, 4 -> fim
-
-    qtd_px_mov_naves dw 5
     
     frame_time equ 09C40h ; tempo entre alteracoes dos elementos (40ms em hexa)
     frame_time_test equ 25 ; alterar caso alterar frame time (deve ser = quantos 'frame_time' existem em 1s)
     
     sector_show_time dw 003Dh, 0900h ; tempo da escrita do setor (4s em micro seg)
-    sector_temp_total equ 30 ; tempo em segundos de cada setor
+    sector_temp_total equ 5 ; tempo em segundos de cada setor
     sector_temp_str db 2 dup (?)
     tam_sector_temp_str equ $ - sector_temp_str
     
@@ -223,8 +219,6 @@
     vida_testando dw ?
     
     cor_troca db 0
-    
-    coluna_testando db ?
     
 .code 
 
@@ -301,25 +295,6 @@ MOVE_HORIZONTAL proc
 endp
 
 endp
-
-
-encerra proc
-    mov AH, 1h      ;muda configuaracao e
-    int 16h         ;verifica se ha tecla no buffer quando entra
-    jz acaba        ;se nao houver, pode encerrar
-limpeza:
-    xor AH,AH       ;se houver tecla no buffer, muda a configuracao e
-    int 16h         ;limpa o buffer
-    mov AH, 1h      ;muda configuaracao e
-    int 16h         ;verifica se ha mais uma tecla no buffer
-    jz acaba        ;se nao houver, pode encerrar
-    jmp limpeza     ;se houver, continua limpando o buffer
-
-acaba:
-    mov AH, 4ch     
-    int 21h         ;interrupcao para encerrar o programa
-    ret
-endp 
 
 POS_CURSOR proc
     push AX
@@ -783,7 +758,6 @@ APERTA_BOTAO:
     call INICIO_JOGO
     
 FIM_DESENHA_MENU:
-    call encerra
     ret
 endp
 
@@ -1050,8 +1024,8 @@ VENCEU_PERDEU proc
     ; venceu
     mov BP, OFFSET vencedor
     mov BL, verde
-                        ; Centralizar o texto
-    mov DH, 8          ; Linha inicial = 9 (meio vertical da tela para altura de 5 linhas)
+                       ; Centralizar o texto
+    mov DH, 8          ; Linha inicial = 8 
     mov DL, 0          ; Coluna inicial = 0 (texto tem 39 caracteres de largura)
     mov CX, 200        ; N?mero de caracteres a escrever (40 x 6)
     
@@ -1206,7 +1180,7 @@ PRINTA_SET_3:
     mov [cor_troca], vermelho
    
     
-     mov AX, 2000
+    mov AX, 2000
     mov BX, 20
     call CALCULA_BONUS_SETOR
     
@@ -1549,6 +1523,7 @@ MOVE_ELEMENTOS proc
     
     call MOVIMENTA_CENARIO
     call MOVIMENTA_TIRO
+    call MOVIMENTA_INIMIGOS
     call MOVIMENTA_INIMIGOS
     
 SAIR_MOVE_ELEMENTOS:
@@ -2100,28 +2075,28 @@ endp
 
 ; gerador de pseudo-random number
 ; range de numeros entre [BX, CX]
-; algoritimo LCG (Linear congruential generator)
+; algoritmo LCG (Linear congruential generator)
 ; retorna em AX
 GERAR_NUM_ALEATORIO proc
     push BX
     push CX
     push DX
 
-    mov AX, 25173          ; LCG Multiplier
-    mul word ptr random_num_seed     ; DX:AX = LCG multiplier * seed
-    add AX, 13849          ; Add LCG increment value
-    ; Modulo 65536, AX = (multiplier*seed+increment) mod 65536
-    mov random_num_seed, AX          ; Update seed = return value
+    mov AX, 25173          ; LCG Multiplicador
+    mul word ptr random_num_seed     ; DX:AX = LCG Multiplicador * seed
+    add AX, 13849          ; Adiciona incremento LCG 
+    ; Modulo 65536, AX = (multiplicador*seed+incremento) mod 65536
+    mov random_num_seed, AX          ; Atualiza seed = return value
     
-    ; Map AX into the desired range [min, max]
+    ; Mapeia AX no range desejado [min, max]
     sub CX, BX             ; CX = max - min
-    inc CX                  ; CX = range_size
+    inc CX                  ; CX = tamanho range
 
-    xor DX, DX              ; Clear DX for DIV operation
-    div CX                  ; AX = AX / range_size, DX = AX % range_size
-    mov AX, DX              ; AX = random_in_range (remainder)
+    xor DX, DX              ; Limpa DX para DIV
+    div CX                  ; AX = AX / range, DX = AX % range
+    mov AX, DX              ; AX = resto
 
-    add AX, BX             ; Adjust by the minimum value to get [min, max]
+    add AX, BX             ; Ajusta o valor minimo [min, max]
 
     pop DX
     pop CX
